@@ -129,11 +129,21 @@ The comparison theorem extends a classical inequality, and we are careful about 
   of \cref{sec:theta}.
 \item \emph{BBMST's moment lemma} \cite[Lemma~3.6]{BBMST} is the monomial case $\varphi(u)=u^k$ of
   \cref{thm:comparison}, and \cite[Lemma~3.4]{BBMST} is its single-progression case (\cref{sec:bbmst-lemmas}).
+\item \emph{Hackmon} \cite{Hackmon2026}, independently and shortly before this work, used a comparison of the
+  same kind to bound the distortion losses themselves, in showing that the least common multiple of the moduli of an
+  odd distinct covering system has at least seven prime factors. His Lemmas~5 and~6 bound $\E(K-t)^+$ for every
+  real $t$, where $K$ counts the classes containing a point in a family with one class for every nontrivial divisor
+  of the period, under kernels bounded by $Cp^{-a}$ on the classes modulo $p^a$. The bound is the same expectation
+  for a product of independent factors with the tilted laws of \cref{def:tilted}. This is the case of
+  \cref{thm:comparison} with unit weights and the complete family of cylinders.
 \end{itemize}
-What is new is the extension in two directions at once: to measures given by $\nu$-bounded product kernels, which
-is what makes the inequality applicable to the distorted measures and produces the tilted law; and to the whole
-increasing convex order, which allows the non-polynomial hinge $(u-t)^+$. We found no earlier use of convex-order
-or tilted comparison inequalities to bound the distortion losses themselves. Two further, minor novelties are the
+Relative to Rogers' theorem and the lemmas of BBMST, what is new is the extension in two directions at once: to
+measures given by $\nu$-bounded product kernels, which is what makes the inequality applicable to the distorted
+measures and produces the tilted law; and to the whole increasing convex order, which allows the non-polynomial
+hinge $(u-t)^+$. Hackmon's comparison already has both features for unit weights and the complete family.
+Relative to it, \cref{thm:comparison} allows any finite family of cylinders with any nonnegative weights. The
+minimum modulus problem needs this: the loss at $p$ involves the weighted count $U_p(s)=\sum_{d\mid s}w_p(d)$, in
+which only the moduli that are at least $m$ count. Two further, minor novelties are the
 exact evaluation of the per-prime bounds (\cref{lem:SBH,lem:tausplit}), which is elementary, and an elementary tail
 estimate (\cref{prop:tail,prop:tailtwo}) based on Chebyshev's bound for the central binomial coefficient, which can replace
 \cite[Theorem~6.1]{BBMST} and Dusart's estimate for the $k$-th prime when the margin is not too small.
