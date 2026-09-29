@@ -1,0 +1,45 @@
+name = "MinModulus"
+version = "0.1.0"
+defaultTargets = ["MinModulus"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "v4.34.1"
+
+[[lean_lib]]
+name = "MinModulus"
+
+# --- CheckerImpl (the first formalization's checker; core Lean only, no Mathlib) ----------------
+# Precompiled so that `native_decide` runs the checker as native code. Declared after `MinModulus`
+# so that it owns the modules `MinModulus.CheckerImpl.*` (Lake picks the last declared library that
+# matches a module). Contains only functions of `Params`: no expensive closed constants.
+[[lean_lib]]
+name = "CheckerImpl"
+roots = ["MinModulus.CheckerImpl.Checker"]
+globs = ["MinModulus.CheckerImpl.Arith", "MinModulus.CheckerImpl.Primes",
+         "MinModulus.CheckerImpl.Schedule", "MinModulus.CheckerImpl.Moments",
+         "MinModulus.CheckerImpl.TauDP", "MinModulus.CheckerImpl.Enum",
+         "MinModulus.CheckerImpl.Checker"]
+precompileModules = true
+
+# The Bool certificate `check` of the first formalization and `check_eq_true` (native_decide).
+# Not precompiled. Declared last so that it owns `MinModulus.CheckerImpl.Certificate`.
+[[lean_lib]]
+name = "CheckerCert"
+roots = ["MinModulus.CheckerImpl.Certificate"]
+
+# --- Checker2Impl (the second checker, used by the main theorem; core Lean only) ------------------
+# Same pattern: precompiled so that `native_decide` runs it as native code.
+[[lean_lib]]
+name = "Checker2Impl"
+roots = ["MinModulus.Checker2Impl.Checker"]
+globs = ["MinModulus.Checker2Impl.Params", "MinModulus.Checker2Impl.Laws",
+         "MinModulus.Checker2Impl.SBH", "MinModulus.Checker2Impl.TauSplit",
+         "MinModulus.Checker2Impl.Checker"]
+precompileModules = true
+
+# The Bool certificate `check2` (m = 14600) and `check2_eq_true` (native_decide). Not precompiled.
+[[lean_lib]]
+name = "Checker2Cert"
+roots = ["MinModulus.Checker2Impl.Certificate"]
