@@ -1,0 +1,441 @@
+%% =====================================================================================
+\section{The certified computations}\label{sec:computation}
+%% =====================================================================================
+
+\subsection{Arithmetic with directed rounding}\label{sec:rounding}
+
+The certified checkers \path{certificate-14501/src/rigx.c} (for \cref{thm:main}) and \path{src/rigcert.c} (for
+\cref{thm:lean}) are single C files that implement \cref{sec:evaluation} in IEEE-754 double precision with directed
+rounding. The first was derived from the second and keeps all of its conventions. (Separate implementations in
+fixed-point integer arithmetic are part of the formalizations of \cref{thm:main,thm:lean}; see
+\cref{sec:certified-formal,sec:lean}.) The conventions
+are as follows; \cref{app:rounding} lists the rounding direction of the quantities.
+\begin{itemize}
+\item The processor is switched to round-upward mode once and stays there, so every $+,-,\times,/$ returns an
+  upper bound for the exact result of its operands. Lower bounds are computed as
+  $\mathrm{RD}(x\circ y)=-\mathrm{RU}(-(x\circ y))$. Square roots are corrected to the required direction by an
+  exact fused-multiply-add sign test.
+\item No library transcendental function enters any bound. Powers $q^{-a}$ are formed by repeated division,
+  $(a+1)^\theta$ by repeated multiplication and a directed square root, and the logarithms in the test of
+  \cref{prop:bbmst61} are replaced by rigorous lower bounds from a truncated $\operatorname{artanh}$ series with
+  positive terms. Library functions such as \code{log}, \code{pow} and \code{sqrt} are called only to evaluate the
+  schedule and to choose free parameters (enumeration cut-offs, the split point $y$ of \cref{sec:SBH}, table sizes).
+\item Quantities that enter a total with a plus sign are rounded up; quantities that are subtracted, such as the
+  partial Euler sums in \eqref{eq:EU}, the thresholds $\beta$ in \cref{sec:SBH} and the enumerated mass in
+  \eqref{eq:AB-bound}, are rounded down. Differences that would cancel badly are replaced by algebraically identical
+  sums of nonnegative terms, such as the lost-mass recursion \eqref{eq:lost} and the suffix sums \eqref{eq:suffix}.
+\item The decimal output is formatted from integers, so the printed totals are themselves upper bounds.
+\item A start-up self-test aborts if directed rounding or the negation idiom does not behave as expected, or if
+  constant folding in round-to-nearest is detected. The sources forbid \code{-ffast-math} and turn off
+  floating-point contraction.
+\end{itemize}
+
+\emph{The schedule and the tilts.} The value $d_p$ of the schedule is evaluated once per prime in round-to-nearest
+(with \code{libm}'s logarithm) and stored. The tilt used everywhere afterwards, in the random numbers $s_{p'}$ for
+$p'>p$ and in $T_X$, is the double $\hat\nu_p=\mathrm{RU}\bigl(1/\mathrm{RD}(1-d_p)\bigr)\ge1/(1-d_p)$. We therefore
+apply \cref{thm:criterion} and \cref{prop:bbmst61} with the schedule $\delta_p:=1-1/\hat\nu_p\ge d_p$, for which
+$\nu_p=\hat\nu_p$ exactly. The bounds at level $p$ use $t\le d_p\le\delta_p$ in (i) and $d=\min(d_p,\frac12)\le\delta_p$
+in (ii) and (iii), so they are admissible. All $\delta_p$ are at most $0.46+10^{-15}<\frac12$. The programs assert
+$\hat\nu_p\le p$ at every prime, and $t\le d_p$ holds by construction (\code{rigx.c} uses $t=d_p$) or is asserted
+(\code{rigcert.c}).
+
+\emph{A rounding gap and its repair.} An audit found one rounding-direction flaw in \code{rigcert.c}: $(p-1)^2$ was
+formed by converting an exact integer to a double, which can round \emph{up} in round-upward mode for
+$p\ge94{,}906{,}267$, where $(p-1)^2>2^{53}$, although it is used as a divisor of upper bounds (in the second moments
+and in the factors of $T_X$). These bounds could therefore be low by one unit in the last place. The program now uses
+$\mathrm{RD}((p-1)^2)$ and reproduces the certified output for \cref{thm:lean} bit for bit
+(\code{src/CERT\_NOTES.md}); \code{rigx.c} had the repair from the start.
+
+\subsection{The certificate for \cref{thm:main}}\label{sec:certified}
+
+The certified run for $m=\Mzero$ (command in \cref{app:reproduce}) prints
+\[
+  \eta_{\mathrm{up}}=\etaMainTwelve\qquad(A=\blockAMain,\ B=\blockBMain,\ C=\blockCMain),
+\]
+where $A$, $B$ and $C$ are the contributions of the primes $p<50$, $50\le p\le\PX$ and $\PX<p\le\PmaxMain$. The total
+is the double $\etaMainFull$ (\code{\etaMainHex}), rounded up in the twelfth decimal. The program also prints
+$k=\pi(\PmaxMain)=\kPrimesMain$, the upper bound $T_{\mathrm{up}}=\TupMain$ for $T_{\PmaxMain}$, and the quantities of the
+test of \cref{prop:bbmst61}. \Cref{tab:budget} shows the budget by prime ranges, next to that of the certificate for
+\cref{thm:lean}, and \cref{app:budget} gives finer breakdowns. About $\shareBelowTwoK\%$ of the budget is spent at the
+primes below $2{,}000$.
+
+\begin{table}[ht]
+\centering
+\caption{Where the budget goes. Certified contributions of the prime ranges for $m=\Mzero$
+($P_{\max}=\PmaxMain$) and $m=\MzeroLean$ ($P_{\max}=\Pmax$); the second column gives the number of primes (for the
+last two rows, for $m=\Mzero$ and for $m=\MzeroLean$). Every entry is rounded up in the sixth decimal; the totals
+are the certified values of $\eta_{\mathrm{up}}$, rounded up.}
+\label{tab:budget}
+\small
+\input{gen/table_budget.tex}
+\end{table}
+
+\begin{proof}[Proof of \cref{thm:main}]
+Apply \cref{prop:bbmst61} with $m=\Mzero$, $X=\PmaxMain$, the schedule $\delta_p=1-1/\hat\nu_p$ of \cref{sec:rounding}
+for $p\le X$ and $\delta_p=\frac12$ for $p>X$, and $c_p$ the per-prime costs computed by the certified program. Each
+$c_p$ is an upper bound for one of the quantities (i)--(iii) of \cref{thm:criterion}: for $p<17$ the first moment,
+which is (i) with $t=0=\delta_p$, and otherwise a comparison bound with $t=d_p\le\delta_p$, multiplied by a margin
+factor larger than $1$. The program certifies $\eta=\sum_{p\le X}c_p\le\etaMainTwelve<1$, and with
+$\mu_{\mathrm{lo}}=\mathrm{RD}(1-\eta_{\mathrm{up}})\ge\muLoMain$ it certifies
+\[
+  \frac{T_X}{1-\eta}\le f_{\mathrm{up}}=\mathrm{RU}\Bigl(\frac{T_{\mathrm{up}}}{\mu_{\mathrm{lo}}}\Bigr)\le\fUpMain,
+  \qquad
+  (\log k+\log\log k-3)^2k\ge\critLoMain,
+\]
+where $k=\kPrimesMain\ge10$ and the logarithms are bounded below as in \cref{app:rounding}. Since
+$\fUpMain<\critLoMain$, \cref{prop:bbmst61} applies. Therefore no family of congruences with distinct moduli, all at
+least $\Mzero$, covers $\Z$. \Cref{cor:main} follows, since a covering system with distinct moduli must then have a
+modulus below $\Mzero$.
+\end{proof}
+
+The test of \cref{prop:bbmst61} passes with $f/(\log k+\log\log k-3)^2k\approx0.611$; it would hold for any
+$\eta$ up to about $0.999955$ (\code{certificate-14501/xcheck/results/tail.out}), so the margin of the certificate is
+about $2.8\cdot10^{-5}$ in $\eta$. The margin of \cref{thm:criterion} is not enough here, as noted in \cref{sec:tail}.
+
+\subsection{The formal certificate for \cref{thm:main}}\label{sec:certified-formal}
+
+The formal proof of \cref{thm:main} (\cref{sec:lean}) uses a second checker, written in Lean (\code{Checker2Impl}). It
+evaluates the per-prime bounds as in \cref{sec:SBH,sec:tausplit}, for $m=\Mzero$, the primes $p\le X=\XFormal$ and
+$t=\delta_p$, in fixed-point arithmetic with values $n/2^{62}$ and explicit directed rounding. The schedule is that of
+the C certificate with the two knots at $p\ge5\cdot10^4$ set to $0.45$, rounded to multiples of $10^{-9}$, with
+$\delta_p=0$ for $p<17$ and $\delta_p=\frac12$ for $p>X$.
+\begin{itemize}
+\item For $p<17$ it bounds $\E[U_p(s)]$, which is (i) with $t=\delta_p=0$.
+\item For $17\le p<m/2$ it uses \cref{lem:SBH} in the lower-tail form
+  $\E[(\tau_ST-\beta)^+]=\tau_S\E[T]-\E[\beta]+\E[(\beta-\tau_ST)^+]$. The last term involves the joint law of $(T,b)$
+  only for $T\le\beta/\tau_S$, so this evaluation has neither lost mass nor exponent truncation. The enumeration of
+  $s_S$ is pruned as in \cref{sec:SBH}, at the relative level $2^{-33}$, and the pruning bounds are added.
+\item For $m/2\le p\le\PX$ it uses the $\tau$-split (\cref{lem:tausplit}) with the truncations of \cref{sec:lost},
+  with the law of $\tau_S$ kept on $[0,2^{22}]$.
+\item For $\PX<p\le X$ it takes the primes in blocks of relative width $2^{-13}$ and evaluates the $\tau$-split
+  bound once per block, at the first element of the block, where it is largest.
+\end{itemize}
+The run certifies
+\[
+  \sum_{p\le X}c_p\le\etaFormal,\qquad T_X\le\TupFormal;
+\]
+the primes $p<17$, $17\le p\le\PX$ and $\PX<p\le X$ contribute $\etaFormalA$, $\etaFormalB$ and $\etaFormalC$.
+
+\begin{proof}[Formal proof of \cref{thm:main}]
+Apply \cref{thm:criterion} in the form of \cref{rem:criterion-sharp}, with $m=\Mzero$, $X=\XFormal$, the schedule above,
+the per-prime costs $c_p$ of the Lean checker (each an upper bound for the quantity (i) with $t=\delta_p$), and the
+constant $C_X=\frac{5941}{50000}$ of \cref{prop:tailtwo}. The left-hand side of the criterion is at most
+\begin{multline*}
+  \etaFormal+\frac{5941}{50000}\cdot\frac{\TupFormal}{\XFormal}\\
+  \le\etaFormal+\tailFormal\le\totalFormal<1 .
+\end{multline*}
+Therefore no family of congruences with distinct moduli, all at least $\Mzero$, covers $\Z$.
+\end{proof}
+
+The whole argument, including the soundness of every step of the checker and the tail estimate, has been checked by
+Lean's kernel. The only trusted step is the compiled evaluation of the checker (\cref{sec:lean}), which takes about ten
+minutes and $2.6$ GB. The margin is $\slackFormal$. For $m=14{,}500$ a floating-point prototype of the same checker
+gives $\sum_pc_p>1$ on its own, so $\Mzero$ is also the limit of the formal version of the method. On the way, the
+same development certified $m=14{,}600$ with $X=\Pmax$ and the tail of \cref{prop:tail} (total $\totalLeanTwo$), and
+$m=14{,}505$ with $X=10^9$ (total $\totalLeanThree$). The C program \path{certificate-14501/src/rigx.c}, run at
+$m=14{,}600$ and $X=\Pmax$ with matching settings, agrees with the Lean checker's sum $\sum_{p\le X}c_p$ to within
+$10^{-6}$.
+
+\subsection{The certificate for \cref{thm:lean}}\label{sec:certified-lean}
+
+The certified run for $m=\MzeroLean$ prints
+\[
+  \eta_{\mathrm{up}}=\etaCertTwelve\qquad(A=\blockA,\ B=\blockB,\ C=\blockC),
+\]
+for the primes $p<50$, $50\le p\le\PX$ and $\PX<p\le\Pmax$. The total is the double $\etaCertFull$
+(\code{\etaCertHex}), rounded up in the twelfth decimal. The program also prints $k=\pi(\Pmax)=\kPrimes$ and the upper
+bound $T_{\mathrm{up}}=\Tup$ for $T_{\Pmax}$.
+
+\begin{proof}[Proof of \cref{thm:lean}]
+Apply \cref{thm:criterion} with $m=\MzeroLean$, $X=\Pmax\ge2^{27}$, the schedule $\delta_p=1-1/\hat\nu_p$ of
+\cref{sec:rounding} for $p\le X$ and $\delta_p=\frac12$ for $p>X$, and $c_p$ the per-prime costs computed by the
+certified program, each of which is an upper bound for one of the quantities (i)--(iii). The program certifies
+$\sum_{p\le X}c_p\le\etaCertTwelve$ and $T_X\le T_{\mathrm{up}}<\TupCeil$. Hence the left-hand side of
+\eqref{eq:criterion} is at most
+\[
+  \etaCertTwelve+\frac{100}{189}\cdot\frac{\TupCeil}{\Pmax}
+  \le\etaCertTwelve+\tailElem<\etaElem<1 .
+\]
+Therefore no family of congruences with distinct moduli, all at least $\MzeroLean$, covers $\Z$.
+\end{proof}
+
+The criterion of BBMST gives an independent confirmation of the tail. With
+$\mu_{\mathrm{lo}}=\mathrm{RD}(1-\eta_{\mathrm{up}})\approx\muLo$, the program certifies
+$T_X/(1-\eta)\le f_{\mathrm{up}}\le\fUp$ and $(\log k+\log\log k-3)^2k\ge\critLo$, so \cref{prop:bbmst61} applies as
+well, with $f/(\log k+\log\log k-3)^2k\approx0.043$ (\code{logs/xcheck\_final.md}).
+
+\subsection{Independent recomputation}\label{sec:xcheck}
+
+\emph{The certificate for \cref{thm:main}.} Two independent checks were made.
+\begin{enumerate}[label=(\arabic*)]
+\item \emph{Cross-check by independently written code} (\code{certificate-14501/xcheck/}). The programs of the
+  recomputation of the certificate for \cref{thm:lean} described below, which were written independently of both
+  checkers, were rerun with the new schedule (only their schedule header was changed), together with a new program
+  for the large primes that uses no code of \code{rigx.c}. For each prime they compute a rigorous interval
+  $[\mathrm{lo},\mathrm{hi}]$ for the exact value of the level bound. \Cref{tab:xcheck-main} summarizes the results:
+  the certified cost is at least $\mathrm{hi}$ at every prime compared, and the total of the upper ends for
+  $\PX<p\le\PmaxMain$ is below the certified $C$.
+\item \emph{Independent referee.} An AI agent acting as a referee checked the mathematics of
+  \cref{sec:SBH,sec:tausplit,sec:lost} by hand; brute-forced the identity of \cref{lem:SBH} with exact rationals on
+  $36{,}840$ random pairs $(p,s)$ at all $\nPrimesSBH$ primes where it is used, including cases with $y$ itself a
+  prime of $B$ and with $v_q\ge2$ for $q\in B$ (no mismatch); audited the rounding directions and the lost-mass
+  accounting; and recomputed every level bound for all primes up to $\PmaxMain$ with separately written programs (an
+  exact complement identity with a pruned enumeration for $p<\firstTau$, and a logarithmic-grid law of $\tau(s)$ with
+  its own sieve for the larger primes), with exact-rational and $60$-digit spot checks. It obtained the rigorous
+  interval $[\refEtaLo,\refEtaHi]$ for the sum of the level bounds, found the certified cost at or above its upper
+  bound at every prime (at every level up to $\PX$ and at every $500$-th prime beyond, where the per-prime costs are
+  recorded), reproduced the run bit for bit on macOS with Apple clang and with GNU gcc, and found no errors. Its remaining
+  remarks were that the trust base includes \cite[Theorem~6.1]{BBMST} and that the bound for the largest primes is
+  conservative (\cref{sec:tausplit}).
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\caption{The cross-check of the certificate for \cref{thm:main}. Here $\mathrm{hi}$ is the upper end of an
+independent rigorous interval for the exact level bound, and ``cost'' is the certified cost, including the margins of
+\cref{sec:eval-overview}.}
+\label{tab:xcheck-main}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.64\textwidth}@{}}
+\toprule
+check & result\\
+\midrule
+schedule, all $\nPrimesPX$ primes $p\le\PX$ & relative deviation from a $40$-digit evaluation at most $4.5\cdot10^{-16}$;
+  $\hat\nu_p\ge1/(1-d_p)$ everywhere\\
+first moments, $p<17$ & exact rational values; at most the certified cost at all $6$ primes\\
+S/B/H levels, $17\le p\le\lastSBH$ & all $\nPrimesSBH$ primes, with two different splits whose intervals always overlap;
+  $0$ violations; cost/hi $\in[1+9.2\cdot10^{-7},\,1+9.6\cdot10^{-7}]$\\
+$\tau$-split levels, $\firstTau\le p\le\PX$ & all $\nPrimesTauPX$ primes, with a direct law of $\tau(s)$; $0$ violations;
+  cost/hi $\in[1+4.5\cdot10^{-5},\,1+1.2\cdot10^{-4}]$\\
+$\tau$-split levels, $\PX<p\le\PmaxMain$ & $118{,}717$ primes compared (all $p\le\PX$ and every $500$-th prime beyond),
+  $0$ violations; the upper ends summed over all $\nPrimesCMain$ primes give $0.0014578122\le C$\\
+tail & $k=\kPrimesMain$ confirmed by a segmented sieve; $T_k=705974.98819$, below $T_{\mathrm{up}}$ by $1.0\cdot10^{-8}$
+  relative; $f/(\log k+\log\log k-3)^2k=0.611$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{The certificate for \cref{thm:lean}.} Separately written code (\path{tests/xcheck_final/}), with its own
+decomposition and its own outward rounding, recomputed this certificate (\path{logs/xcheck_final.md}); it reuses none
+of the checker's machinery. For each of the $\nPrimesPX$ primes $p\le\PX$ and each candidate bound of the checker, it
+computed a rigorous interval $[\mathrm{lo},\mathrm{hi}]$ for the exact value and checked
+$c_p\ge\min_{\text{candidates}}\mathrm{hi}$ in exact rational arithmetic: there were $0$ violations and $0$
+inconclusive cases, and the smallest relative margin, $1.4\cdot10^{-7}$ at $p=8009$, is seven times the width of the
+interval there. For $31\le p<8000$ it uses the identity of \cref{lem:SBH}, and for $8000<p\le\PX$ a divisor-count
+dynamic program on $[1,2^{20}]$ and the exact identity $\E[(\tau-x)^+]=\E\tau-x+\sum_{T\le x}(x-T)\P(\tau=T)$, which
+needs no truncation; both are run in both rounding directions and agree with brute force on small instances. It also
+reproduced the schedule bit for bit, the first and second moments (against $60$-digit values and direct double sums),
+the total $0.0065107856047$ of the fractional-moment bounds over $(\PX,\Pmax]$ (against the checker's $\blockC$), the
+prime count, the product $T_k=321051.3638366$ (the checker's $T_{\mathrm{up}}$ is larger by $2.2\cdot10^{-9}$ relative)
+and the tail criterion. It also measures the slack of the cruder evaluation. The sum over $p\le\PX$ of the exact values of the
+best candidate bounds is $\xcheckExact$, against the checker's $\sumCostPX$; the difference, about $\xcheckSlack$, is
+almost entirely at $p\ge50$. The recomputations check numbers, not mathematics: the comparison theorem and the
+reduction of \cref{sec:loss} are outside their scope. Their interval code relies on the compiler honouring directed
+rounding (it passes its own self-tests and was cross-validated against brute force and $60$-digit arithmetic).
+
+\subsection{Tests}\label{sec:tests}
+
+\emph{The checkers' formulas.} On small instances, independent Python programs compare every quantity that
+\code{rigcert.c} computes with brute-force enumeration of $s$ (with a rigorous bracket for the pruned part), with exact
+rational arithmetic (for $\E[U_p]$ and $\E[U_p^2]$, via a different decomposition) and with $50$-digit arithmetic (for
+the products $\E[\tau(s)^\theta]$) (\code{tests/cert/run\_small.sh}). The instances use the knot schedule and the
+constant band of the final run, values $\delta>\frac12$, and tiny truncation parameters that force every tail path.
+There were no failures over $308$ comparison-bound candidates, $84$ moment-bound candidates and the first and second
+moments at every prime; on two larger instances, $108$ primes of exact moments and $828$ pairs $(p,\theta)$ of
+$50$-digit products agreed. Earlier validations on other configurations, including $431$ exact prime checks, are
+described in \code{src/CERT\_NOTES.md}. For \code{rigx.c}, plain enumeration of $s$ was compared with $42$ cases at
+$m=300$ and $m=1000$, including settings that force every truncation and lost-mass path
+(\code{certificate-14501/validation/}); the certified values were always at least the lower end of the brute-force
+bracket, and inside the bracket with the default settings. At $m=\MzeroLean$ with the schedule of \cref{thm:lean},
+\code{rigx.c} agrees with the exact intervals of the recomputation above to within $10^{-9}$ relative at the S/B/H
+levels and lies inside the intervals at the others.
+
+\emph{The comparison theorem.} About $10^6$ randomized, exhaustive and adversarial tests (\code{tests/review/})
+found no violation of \cref{lem:onecoord}, \cref{thm:comparison} and \cref{lem:pointwise}. They compare the
+theorem with the exact worst case over all $\nu$-bounded product measures (computed by a backward bathtub recursion),
+include an exhaustive search over all families of at most three cylinders on $\Z/4\times\Z/3$, and simulate the
+measures of BBMST exactly on small moduli, checking \cref{lem:F1}, the kernel bounds of \cref{lem:kernel},
+\cref{lem:F3} and each inequality in the proof of \cref{thm:perprime}.
+
+\emph{Proof review.} Separate AI referee passes checked each step of the proof of the comparison theorem and of the
+reduction, and the new steps of \cref{sec:SBH,sec:tausplit,sec:lost}; they found no gap, and their presentational
+suggestions have been incorporated. No human has refereed the argument yet.
+
+\subsection{Run times and reproducibility}\label{sec:runtimes}
+
+The certified run for \cref{thm:main} takes $87$--$93$ seconds on one core of an Apple M3 Max and about $1.2$~GB of
+memory (for the sieve up to $10^9$). Rebuilt from the published source, it reproduces the certified result lines and
+the per-prime dump bit for bit; the referee reproduced them on macOS with Apple clang and with GNU gcc. On Linux
+(x86-64, glibc, GNU gcc at \code{-O0} and at \code{-O2}, which agree) the run also certifies, with the same result
+line; the last digits of the certified value and $503$ of the $119{,}644$ per-prime costs in the dump differ, by at
+most about $2\cdot10^{-12}$ relative, because of the logarithm (see below). The cross-check of
+\cref{tab:xcheck-main} takes about $29$ minutes on one core. The certified run for \cref{thm:lean} takes $156.6$
+seconds of CPU time on one core (\code{logs/timing.txt}) and is also reproduced bit for bit
+(\code{logs/repro16k.txt}). Bit-for-bit reproduction requires floating-point contraction to be off and the same
+\code{libm} logarithm, which is used only to evaluate the schedule; another \code{libm} may move some $d_p$ by one
+unit in the last place. The last digits of the output would then change, but the certificates would remain valid,
+since any schedule is admissible and the checkers use their own values consistently.
+
+\subsection{Formal verification}\label{sec:lean}
+% Status (2026-09-28): complete for thm:main, thm:lean, thm:squarefree, thm:sf23, thm:sf7type, thm:odd, thm:odd2;
+% source DELIV/lean/README.md (coordinator's axiom audits).
+
+\Cref{thm:main,thm:lean} have been formally verified in Lean~4 (v4.34.1) with Mathlib, each modulo one
+\code{native\_decide} evaluation. The development is in the folder \path{lean/} of the accompanying files, and
+\path{lean/README.md} describes the build and the audit. The root theorems, in
+\path{lean/MinModulus/Checker2Sound/Final14501.lean} and \path{lean/MinModulus/Main/Main.lean}, are
+\begin{alltt}\small
+theorem MinModulus.Checker2Sound.not_covers_14501 \{\(\iota\) : Type*\} [Fintype \(\iota\)]
+    (d : \(\iota\) \(\to\) \(\mathbb{N}\)) (a : \(\iota\) \(\to\) \(\mathbb{Z}\)) (hd : Function.Injective d)
+    (hm : \(\forall\) i, \MzeroNum \(\le\) d i) :
+    \(\exists\) x : \(\mathbb{Z}\), \(\forall\) i, \(\neg\) ((d i : \(\mathbb{Z}\)) \(\mid\) x - a i)
+theorem MinModulus.not_covers \{\(\iota\) : Type*\} [Fintype \(\iota\)]
+    (d : \(\iota\) \(\to\) \(\mathbb{N}\)) (a : \(\iota\) \(\to\) \(\mathbb{Z}\)) (hd : Function.Injective d)
+    (hm : \(\forall\) i, \MzeroLeanNum \(\le\) d i) :
+    \(\exists\) x : \(\mathbb{Z}\), \(\forall\) i, \(\neg\) ((d i : \(\mathbb{Z}\)) \(\mid\) x - a i)
+\end{alltt}
+Neither contains \code{sorry}. For each, \code{\#print axioms} lists only \code{propext}, \code{Classical.choice},
+\code{Quot.sound} and one auxiliary axiom introduced by \code{native\_decide}:
+\begin{center}\small\code{MinModulus.Tail2.check2T14501\_eq\_true.\_native.native\_decide.ax\_1\_1}\\
+\code{MinModulus.CheckerImpl.check\_eq\_true.\_native.native\_decide.ax\_1\_1}\end{center}
+respectively. Each states that one closed Boolean (\code{check2T14501}, respectively \code{check}) evaluates to
+\code{true}. The trust base is therefore Lean's kernel together with the compiled evaluation of this Boolean. That
+takes about ten minutes and $2.6$ GB for \code{check2T14501}, and about $50$ seconds for \code{check}. It trusts
+Lean's compiler and runtime, including the arbitrary-precision arithmetic on natural numbers. The code of both
+checkers contains no \code{implemented\_by}, \code{extern}, \code{unsafe} or \code{partial} declarations; the only
+compiler rewrites are two \code{@[csimp]} lemmas, which are proved equalities. The evaluation of \code{check} has been
+re-run from a fresh file. The whole development, including every native evaluation, has also been rebuilt from a fresh
+copy of the sources (with the Mathlib build shared), in about eleven minutes. Both gave the same results and the
+same axioms.
+
+\emph{The formalization of \cref{thm:main}.} It reuses the modules \code{Arith}, \code{Distortion},
+\code{Comparison}, \code{Smooth}, \code{Tail} and \code{Main} of the first formalization unchanged, including the
+certificate interface \code{Cert}. It also reuses the checker's arithmetic, sieve and first-moment code with their
+soundness proofs. New are the following parts.
+\begin{itemize}
+\item The checker \code{Checker2Impl}, which implements \cref{sec:certified-formal}.
+\item The mathematics of its quantities, in \code{Checker2Math}:
+  \begin{itemize}
+  \item \cref{lem:SBH,lem:tausplit} and the domination $\tau(s)\le2^{\sum v_q}$;
+  \item the lower-tail identity;
+  \item the joint law of $(T,b)$ and the law of the exponent sum;
+  \item the depth-first enumeration and its pruning bound.
+  \end{itemize}
+\item A code-level soundness proof, \code{Checker2Sound}, covering:
+  \begin{itemize}
+  \item the dynamic programs, their states and the tables;
+  \item the S/B/H and $\tau$-split costs;
+  \item the loops and the blocks;
+  \item the assembly of the certificate interface (\code{E.run2\_sound}).
+  \end{itemize}
+\item The sharpened tail estimate \cref{prop:tailtwo} and the corresponding form of \cref{thm:criterion}
+  (\code{Tail2}), and the certificate \code{check2T14501\_eq\_true}.
+\end{itemize}
+The soundness theorem \code{E.run2\_sound} holds for all parameters of the checker that satisfy four decidable side
+conditions. A certificate for another $m$, or another schedule, therefore needs only a new \code{native\_decide}
+evaluation.
+
+\emph{Structure of the first formalization.} The whole development has $255$ files and about $52{,}700$ lines,
+counting the formalizations of \cref{thm:main,thm:lean,thm:squarefree,thm:sf23,thm:sf7type,thm:odd,thm:odd2} but not
+the $194$ generated modules that embed and check the certificate data of \cref{thm:sf7type}. Of these, $64$ files and
+about $18{,}400$ lines belong to the first formalization. \Cref{tab:lean} lists the modules and their correspondence with this paper. The first formalization
+follows the paper, with two differences: it uses the
+comparison theorem only for the hinge functions, since the other bounds are obtained from the hinge with
+$t=\delta_p$ by pointwise inequalities on the aligned side, and it treats the primes above $X=\Pmax$ by
+\cref{prop:tail}, so that it needs neither \cite[Theorem~6.1]{BBMST} nor Dusart's estimate.
+
+\emph{The checker of the first formalization.} The numerical certificate for \cref{thm:lean} is produced by an
+independent implementation of the checker in core Lean (\code{CheckerImpl}), not a transcription of
+\code{src/rigcert.c}. It works in fixed point, with values $n/2^{62}$ and explicit directed rounding; it uses
+$t=\delta_p$ only, with $\delta_p$ an exact rational (a multiple
+of $10^{-9}$ obtained from the same knots) and exact rational tilts; and for $\PX<p\le\Pmax$ it processes the primes
+in blocks, taking the factors of each block at its first prime, with $\theta\in\{2,\frac52,3\}$. It certifies
+$\sum_{p\le\Pmax}c_p\le\etaLean$ and $T\le\TupLean$ (slightly larger than in the C program, because of the blocks),
+so that the total with the tail term $\frac{100}{189}T/X=\tailLean$ is $\totalLean<1$. A code-level soundness proof
+(\code{CheckerSound}) shows that the checker's loops and arrays bound the true per-prime losses (invariants of the
+dynamic programs, semantics of the enumeration, the blocks) and assembles them into the certificate
+\code{Cert \MzeroLeanNum{} (2*10\^{}8) \(\delta\) c T} consumed by \code{MinModulus.Main.not\_covers\_of\_cert}, whose
+conditions correspond to those of \cref{thm:criterion} with $t=\delta_p$. The squarefree theorem of
+\cref{sec:squarefree} is formalized in the same way, with its own checker. \Cref{thm:sf23} is formalized as
+\code{MinModulus.SliceCert.not\_covers\_sf3\_23smooth}, an instance of a general theorem
+\code{not\_covers\_of\_slices} for certificates of the kind described in \cref{sec:squarefree} (any start moduli and
+residual primes), which uses only the three standard axioms; the certificate itself is checked by one
+\code{native\_decide} evaluation (\code{check23\_eq\_true}, about $70$ seconds).
+
+\emph{The formalization of \cref{thm:sf7type}.} It is the theorem
+\code{MinModulus.SquarefreeM7.not\_covers} in the module \code{SquarefreeM7}; its hypotheses are those of
+\code{MinModulus.not\_covers} above, together with \code{Squarefree (d i)} and $7\le{}$\code{d i}. It has four parts, which interact only through propositions fixed in advance.
+\begin{itemize}
+\item The reduction to the nine types, the symmetries and the classes modulo $30$ (\code{Reduction}), checked
+  entirely by the kernel.
+\item The per-level bound for families with repetitions at every level, with the tail of \cref{thm:sf7type}: the
+  levels $7$, $11$ and $13$ with the Jensen splits and the exact terms (including the split by the class of the
+  modulus $390$), the grouped bound with power-of-two thresholds for the other levels up to $2^{31}$, and
+  \cref{prop:tail} beyond (\code{Bound}).
+\item The tail coefficients: a sieve up to $2^{31}$ and the Poisson--binomial recursions with upward rounding, with a
+  proof that they bound the true sums, run in $16$ chunks for each of the two schedules (\code{Coef}).
+\item A checker in core Lean with exact integer arithmetic, about $1.6$ times slower than the C verifier, with its
+  soundness proof, and the nine certificates, converted to an exact format and embedded as data ($446$~MB in $83$
+  chunks; \code{Check}, \code{Data}, \code{Cert}).
+\end{itemize}
+\code{\#print axioms} lists \code{propext}, \code{Classical.choice}, \code{Quot.sound} and $124$ auxiliary axioms of
+\code{native\_decide}: $83$ for the certificate chunks, $9$ for the level-$7$ covers of the nine types and $32$ for the
+tail coefficients. The reduction and the analytic part use only the three standard axioms. A build of the whole
+development from scratch takes about $80$ minutes on $24$ threads, almost all of it in the certificate chunks.
+
+\emph{What is not formalized.} The C certificate of \cref{thm:main} (\cref{sec:certified}) and
+\cite[Theorem~6.1]{BBMST}, which it uses, are not formalized; the formal proof does not need them. \Cref{thm:odd} is
+formalized (\cref{sec:odd}), and so is \cref{thm:odd2}; \cref{thm:sf29,thm:sf6smooth} and the results of
+\cref{sec:rings} are not.
+
+\begin{table}[ht]
+\centering
+\caption{Modules of the Lean formalization (\code{lean/MinModulus/}) and the corresponding results of this paper.}
+\label{tab:lean}
+\small
+\begin{tabular}{@{}lr>{\raggedright\arraybackslash}p{0.69\textwidth}@{}}
+\toprule
+module & lines & contents\\
+\midrule
+\code{Arith} & $679$ & setup of a family of congruences: $Q$, the primes and levels, the Chinese remainder
+  theorem, the sets $B_\ell$, \cref{lem:unionbound,lem:pointwise,lem:enlargement}\\
+\code{Distortion} & $646$ & the measures \eqref{eq:rule}, kernels and tilts, \cref{lem:F1,lem:F2,lem:F3},
+  \cref{prop:F4,lem:kernel}\\
+\code{Comparison} & $710$ & \cref{lem:greedy,lem:onecoord} (by duality), \cref{prop:rectangles,lem:vlaw}, and
+  \cref{thm:comparison} for hinges\\
+\code{Smooth} & $2142$ & the tilted law of $s$, $U_p(s)$, the moments $\E[\tau(s)^\theta]$, hinge bounds, monotone
+  coupling in the exponent caps\\
+\code{Tail} & $354$ & \cref{prop:tail}\\
+\code{Main} & $613$ & the certificate interface \code{Cert}, \code{not\_covers\_of\_cert} (\cref{thm:perprime} with
+  $t=\delta_p$, \cref{thm:criterion}), the final theorem\\
+\code{CheckerImpl} & $1269$ & the executable checker and \code{check\_eq\_true} (by \code{native\_decide})\\
+\code{CheckerMath} & $4094$ & the mathematics of the checker's quantities: laws of $\tau(s_A)$ and $\tau(s_B)$,
+  the split of \cref{lem:AB}, the comparison bound, first and fractional moments\\
+\code{CheckerSound} & $6201$ & code-level soundness: loop and array invariants, enumeration, dynamic programs,
+  blocks, and the assembly of the certificate (\code{CheckerSound.D.cert\_16000})\\
+\code{Squarefree} & $1649$ & \cref{thm:squarefree}, with its own checker and soundness proof\\
+\midrule
+\multicolumn{3}{@{}l}{\emph{formalization of \cref{thm:main}}}\\
+\code{Checker2Impl} & $1139$ & the executable checker of \cref{sec:certified-formal}\\
+\code{Checker2Math} & $2155$ & \cref{lem:SBH,lem:tausplit} in the form of the hinge loss, the lower-tail identity, the
+  joint law of $(T,b)$, the law of the exponent sum, the enumeration and its pruning bound\\
+\code{Checker2Sound} & $6604$ & code-level soundness: dynamic programs, tables, the S/B/H and $\tau$-split costs,
+  loops and blocks, the generic soundness theorem \code{E.run2\_sound}, and the final theorem
+  \code{not\_covers\_14501}\\
+\code{Tail2} & $2022$ & \cref{prop:tailtwo}, the criterion with the sharpened tail, and the certificate
+  \code{check2T14501\_eq\_true} (by \code{native\_decide})\\
+\midrule
+\code{Odd} & $4381$ & \cref{thm:odd,thm:odd2}: the chain for restricted moduli, the per-case weights, a checker for
+  the $\tau$-split bounds with excluded and capped primes, its soundness, and nine \code{native\_decide}
+  certificates\\
+\code{SliceCert} & $3138$ & \cref{thm:sf23}: the class decomposition modulo $30$, the per-level bound for families
+  with repetitions, certificate records and the branch-and-bound tree with symmetries, the start-case check, and
+  \code{check23\_eq\_true} (by \code{native\_decide})\\
+\code{SquarefreeM7} & $14950$ & \cref{thm:sf7type}: the reduction to the nine types, the per-level bound with the
+  refinements at $7$, $11$ and $13$ and the tail, the tail coefficients up to $2^{31}$, the exact checker and its
+  soundness (and $194$ generated modules: the certificate data and $124$ \code{native\_decide} checks)\\
+\bottomrule
+\end{tabular}
+\end{table}
+% CHECK: the Lean checker's totals are from DELIV/lean/README.md and SCRATCH/agents/checkerimpl/full_final.out
+%        (0.997384786285, 321095.49941797, tail 0.000849458994, total 0.998234245279); they are not under DELIV/logs.

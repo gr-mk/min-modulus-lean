@@ -16,6 +16,16 @@ Previously, Balister, Bollobás, Morris, Sahasrabudhe and Tiba had shown that di
 first formalization this proof builds on: `MinModulus.not_covers` (`MinModulus/Main/Main.lean`), the same statement
 for moduli ≥ 16,000, with a simpler evaluation and its own checker.
 
+## The paper
+
+`paper/` holds the paper: `paper/main.pdf` (47 pages) and its LaTeX sources.
+- **Build:** `cd paper && tectonic main.tex`, or `latexmk -pdf main.tex`.
+- **Figures:** `fig/` holds the figures and `gen/` the generated tables, so the paper builds as is.
+- **Figure script:** `make_figures.py` regenerates the figures, but it reads certificate data from the paper's
+  accompanying files, which are not in this repository.
+- **References to other files:** the paper also refers to other accompanying files, such as the C certificates,
+  referee reports and further Lean formalizations. Only the Lean proof of the main theorem is included here.
+
 ## Trust base
 
 `lake build MinModulus.Audit` prints:
@@ -92,7 +102,7 @@ That is 95 files and about 28,000 lines. `MinModulus.lean` is the root, and `Min
 axioms.
 
 ## Provenance
-This repository contains only the part of the paper's Lean development that the main theorem depends on. The
+This repository contains the paper and the part of its Lean development that the main theorem depends on. The
 paper's accompanying files also formalize further results: squarefree moduli, odd moduli, and smooth cases. The work
 was carried out with substantial assistance from AI systems (Anthropic's Claude), as described in the paper's
 acknowledgements.

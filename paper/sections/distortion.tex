@@ -1,0 +1,205 @@
+%% =====================================================================================
+\section{The distortion method}\label{sec:distortion}
+%% =====================================================================================
+
+This section restates the part of the framework of BBMST \cite{BBMST} that we use, in their notation. We give
+short proofs, since we use the facts for parameters $\delta_i\in[0,1)$ rather than $[0,\frac12]$, and since the
+kernel structure of \cref{lem:kernel} is only implicit in \cite{BBMST}. Results of \cite{BBMST} are cited with
+the numbering of the arXiv version (arXiv:1811.03547).
+% CHECK: confirm that the numbering of Lemmas 2.1, 2.2, 3.3, 3.4, 3.6, Theorems 3.1, 3.2, 6.1, 8.1 and equations
+%        (3)-(5), (13), (19)-(22) is the same in the published version (Invent. Math. 228 (2022) 377-414).
+
+\subsection{Setting}\label{sec:setting}
+
+Let $D$ be a finite set of integers $d\ge2$ and let $\cA=\{A_d:d\in D\}$ with $A_d=a_d+d\Z$. Since $\cA$ is
+indexed by $D$, the moduli are distinct. We say that $\cA$ \emph{covers} if $\bigcup_{d\in D}A_d=\Z$. Let
+\[
+  Q=\lcm(D)=\prod_{j=1}^n p_j^{\gamma_j},\qquad p_1<p_2<\dots<p_n,\qquad \gamma_j\ge1,
+\]
+and $Q_i=\prod_{j\le i}p_j^{\gamma_j}$ for $0\le i\le n$, so $Q_0=1$ and $Q_n=Q$. We write $\Z_N=\Z/N\Z$. A set
+$S\subseteq\Z$ is \emph{$Q_i$-measurable} if it is a union of residue classes modulo $Q_i$; we identify such sets
+with subsets of $\Z_{Q_i}$. Let $X_j=\Z/p_j^{\gamma_j}\Z$. By the Chinese remainder theorem,
+\[
+  \Z_{Q_i}\cong X_1\times\dots\times X_i,\qquad x\mapsto(x\bmod p_1^{\gamma_1},\dots,x\bmod p_i^{\gamma_i}),
+\]
+and we write $x=(x_1,\dots,x_i)$ and $x_{<j}=(x_1,\dots,x_{j-1})$, which is the reduction of $x$ modulo $Q_{j-1}$.
+In particular $\Z_{Q_i}=\Z_{Q_{i-1}}\times X_i$; for $x\in\Z_{Q_{i-1}}$ the \emph{fibre} of $x$ is
+$F(x)=\{(x,y):y\in X_i\}$.
+
+The moduli are grouped by their largest prime factor:
+\begin{equation}\label{eq:levels}
+  N_i=\{d\in D: d\mid Q_i,\ d\nmid Q_{i-1}\},\qquad B_i=\bigcup_{d\in N_i}A_d ;
+\end{equation}
+thus $N_i$ is the set of moduli whose largest prime factor is $p_i$. This is \cite[(3)]{BBMST}. The set $B_i$ is $Q_i$-measurable. Every $d\in D$ lies in exactly one $N_i$, so
+$\bigcup_iB_i=\bigcup_{d\in D}A_d$.
+
+\subsection{The distorted measures}\label{sec:measures}
+
+Fix $\delta_1,\dots,\delta_n\in[0,1)$ and put
+\[
+  \nu_i=\frac1{1-\delta_i}\ \ge1 .
+\]
+A probability measure on $\Z_{Q_i}$ is regarded as a measure on $\Z_Q$ by spreading the mass of each residue class
+modulo $Q_i$ uniformly over the classes modulo $Q$ that it contains \cite[footnote~2]{BBMST}. In particular, if $P$
+is a measure on $\Z_{Q_{i-1}}$, then $P(x,y)=P(x)/|X_i|$ for $(x,y)\in\Z_{Q_i}$. Let $P_0$ be the uniform measure.
+Given $P_{i-1}$, BBMST define, for $x\in\Z_{Q_{i-1}}$ \cite[(4)]{BBMST},
+\begin{equation}\label{eq:alpha}
+  \alpha_i(x)=\frac{\bigl|\{y\in X_i:(x,y)\in B_i\}\bigr|}{|X_i|},
+\end{equation}
+the proportion of the fibre $F(x)$ covered at level $i$, and \cite[(5)]{BBMST}
+\begin{equation}\label{eq:rule}
+  P_i(x,y)=
+  \begin{cases}
+    \max\Bigl(0,\dfrac{\alpha_i(x)-\delta_i}{\alpha_i(x)(1-\delta_i)}\Bigr)\,P_{i-1}(x,y), & (x,y)\in B_i,\\[3mm]
+    \min\Bigl(\dfrac1{1-\alpha_i(x)},\dfrac1{1-\delta_i}\Bigr)\,P_{i-1}(x,y), & (x,y)\notin B_i.
+  \end{cases}
+\end{equation}
+The first case occurs only if $\alpha_i(x)>0$ and the second only if $\alpha_i(x)<1$, so \eqref{eq:rule} is well
+defined. BBMST take $\delta_i\in[0,\frac12]$. That restriction is used only in their lower bound for the density
+of the uncovered set \cite[Lemma~3.5]{BBMST}; the four facts below hold for $\delta_i\in[0,1)$ with the same
+proofs. In our application every $\delta_i$ is at most $\frac12$ anyway.
+
+\begin{lemma}[{\cite[Lemma~2.1]{BBMST}}]\label{lem:F1}
+For every $x\in\Z_{Q_{i-1}}$ we have $\sum_{y\in X_i}P_i(x,y)=P_{i-1}(x)$. Consequently $P_i(S)=P_{i-1}(S)$ for
+every $Q_{i-1}$-measurable set $S$, and $P_n(S)=P_i(S)$ for every $Q_i$-measurable set $S$.
+\end{lemma}
+
+\begin{proof}
+Write $\alpha=\alpha_i(x)$ and $\delta=\delta_i$, and recall $P_{i-1}(x,y)=P_{i-1}(x)/|X_i|$. If $\alpha\le\delta$,
+the covered points receive nothing and the others receive the factor $1/(1-\alpha)$, so the fibre has mass
+$(1-\alpha)\cdot\frac1{1-\alpha}P_{i-1}(x)=P_{i-1}(x)$. If $\alpha>\delta$, its mass is
+$\bigl(\alpha\cdot\frac{\alpha-\delta}{\alpha(1-\delta)}+(1-\alpha)\frac1{1-\delta}\bigr)P_{i-1}(x)=P_{i-1}(x)$.
+Summing over $x$ gives the second statement. If $S$ is $Q_i$-measurable, it is $Q_{j-1}$-measurable for every
+$j>i$, and applying the second statement for $j=i+1,\dots,n$ gives $P_n(S)=P_i(S)$.
+\end{proof}
+
+\begin{lemma}[{\cite[Lemma~2.2]{BBMST}}]\label{lem:F2}
+$P_i(x,y)\le\nu_i\,P_{i-1}(x,y)$ for every $(x,y)\in\Z_{Q_i}$.
+\end{lemma}
+
+\begin{proof}
+Both factors in \eqref{eq:rule} are at most $1/(1-\delta_i)$, because $(\alpha-\delta)/\alpha\le1$.
+\end{proof}
+
+\begin{lemma}[the loss; {\cite[proof of Lemma~3.3]{BBMST}}]\label{lem:F3}
+\[
+  P_i(B_i)=\frac1{1-\delta_i}\sum_{x\in\Z_{Q_{i-1}}}\bigl(\alpha_i(x)-\delta_i\bigr)^+P_{i-1}(x)
+  =\frac{\E_{P_{i-1}}\bigl[(\alpha_i-\delta_i)^+\bigr]}{1-\delta_i}.
+\]
+\end{lemma}
+
+\begin{proof}
+The fibre $F(x)$ contains $\alpha_i(x)|X_i|$ points of $B_i$, each of $P_{i-1}$-mass $P_{i-1}(x)/|X_i|$. By
+\eqref{eq:rule} they carry together
+$\max\bigl(0,\frac{\alpha_i(x)-\delta_i}{\alpha_i(x)(1-\delta_i)}\bigr)\alpha_i(x)P_{i-1}(x)
+=\frac{(\alpha_i(x)-\delta_i)^+}{1-\delta_i}P_{i-1}(x)$ (both sides vanish if $\alpha_i(x)=0$). Sum over $x$.
+\end{proof}
+
+\begin{proposition}[the criterion; {\cite[proof of Theorem~3.1, (13)]{BBMST}}]\label{prop:F4}
+If $\sum_{i=1}^nP_i(B_i)<1$, then $\cA$ does not cover $\Z$.
+\end{proposition}
+
+\begin{proof}
+By \cref{lem:F1}, $P_n(B_i)=P_i(B_i)$, since $B_i$ is $Q_i$-measurable. Hence
+$P_n\bigl(\bigcup_dA_d\bigr)=P_n\bigl(\bigcup_iB_i\bigr)\le\sum_iP_i(B_i)<1$, so some residue class modulo $Q$ is
+not covered.
+\end{proof}
+
+\begin{remark}[the rule \eqref{eq:rule} is optimal within each fibre]\label{rem:rule-optimal}
+Fix $x$ with $P_{i-1}(x)>0$ and let $P'$ be any measure on $F(x)$ with total mass $P_{i-1}(x)$ and
+$P'(x,y)\le\nu_iP_{i-1}(x,y)$ for all $y$; these are the two properties used in
+\cref{lem:F1,lem:F2}. The uncovered points of $F(x)$ carry at most $\nu_i(1-\alpha_i(x))P_{i-1}(x)$, so
+\[
+  P'\bigl(F(x)\cap B_i\bigr)\ \ge\ \Bigl(1-\frac{1-\alpha_i(x)}{1-\delta_i}\Bigr)^+P_{i-1}(x)
+  =\frac{(\alpha_i(x)-\delta_i)^+}{1-\delta_i}\,P_{i-1}(x),
+\]
+which is the value attained by \eqref{eq:rule}. Thus, given $P_{i-1}$, the rule \eqref{eq:rule} minimizes the loss
+at level $i$ among all rules with these two properties. (It does not follow that it is optimal for the sum of the
+losses over all levels; see \cref{sec:limits}.)
+\end{remark}
+
+\subsection{The kernel structure}\label{sec:kernel}
+
+\begin{definition}\label{def:bounded}
+Let $X=X_1\times\dots\times X_r$ be a product of finite nonempty sets and let $\nu_1,\dots,\nu_r\ge1$. A
+probability measure $\mu$ on $X$ is \emph{$(\nu_1,\dots,\nu_r)$-bounded} if there are \emph{kernels}
+$K_j\colon (X_1\times\dots\times X_{j-1})\times X_j\to[0,\infty)$ such that for all $j$ and all $x_{<j}$,
+\[
+  \sum_{y\in X_j}K_j(x_{<j},y)=1,\qquad K_j(x_{<j},y)\le\frac{\nu_j}{|X_j|}\quad(y\in X_j),
+\]
+and $\mu(x)=\prod_{j=1}^rK_j(x_{<j},x_j)$ for all $x\in X$.
+\end{definition}
+
+In words: under $\mu$, the conditional law of the $j$-th coordinate given the previous ones has density at most
+$\nu_j$ with respect to the uniform measure on $X_j$.
+
+\begin{lemma}\label{lem:kernel}
+For $1\le i\le n$, the measure $P_{i-1}$, viewed as a measure on $\Z_{Q_{i-1}}=X_1\times\dots\times X_{i-1}$, is
+$(\nu_1,\dots,\nu_{i-1})$-bounded.
+\end{lemma}
+
+\begin{proof}
+For $j\le i-1$ and $x\in\Z_{Q_{i-1}}$ we have $P_{i-1}(x_{\le j})=P_j(x_{\le j})$ by \cref{lem:F1}, where
+$P(x_{\le j})$ denotes the mass of the residue class of $x$ modulo $Q_j$. Define
+\[
+  K_j(x_{<j},x_j)=
+  \begin{cases}
+    P_j(x_{<j},x_j)/P_{j-1}(x_{<j}) & \text{if } P_{j-1}(x_{<j})>0,\\
+    1/|X_j| & \text{otherwise.}
+  \end{cases}
+\]
+By \cref{lem:F1}, $\sum_yK_j(x_{<j},y)=1$. By \cref{lem:F2} and the uniformity of $P_{j-1}$ on fibres,
+$P_j(x_{<j},y)\le\nu_jP_{j-1}(x_{<j},y)=\nu_jP_{j-1}(x_{<j})/|X_j|$, so $K_j\le\nu_j/|X_j|$. If
+$P_{j-1}(x_{<j})>0$ for all $j\le i-1$, the product $\prod_{j<i}K_j(x_{<j},x_j)$ telescopes to
+$P_{i-1}(x)$. Otherwise let $j$ be the least index with $P_{j-1}(x_{<j})=0$; then
+$\prod_{l<j}K_l(x_{<l},x_l)=P_{j-1}(x_{<j})=0$, and $P_{i-1}(x)\le P_{i-1}(x_{<j})=P_{j-1}(x_{<j})=0$, so both
+sides vanish.
+\end{proof}
+
+\subsection{The union bound in the fibre}\label{sec:unionbound}
+
+Every $d\in N_i$ factors uniquely as
+\begin{equation}\label{eq:mprime}
+  d=m'_d\,p_i^{\,j_d},\qquad p_i\nmid m'_d,\qquad 1\le j_d\le\gamma_i ,
+\end{equation}
+and $m'_d\mid Q_{i-1}$. Put $A'_d=\{x\in\Z_{Q_{i-1}}:x\equiv a_d\pmod{m'_d}\}$. In coordinates,
+\begin{equation}\label{eq:Aprime-cylinder}
+  A'_d=\prod_{j<i}\bigl\{x_j\in X_j:\ x_j\equiv a_d \pmod{p_j^{\,v_{p_j}(m'_d)}}\bigr\},
+\end{equation}
+a product of balls in the sense of \cref{sec:comparison}.
+
+\begin{lemma}[{\cite[proof of Lemma~3.6]{BBMST}}]\label{lem:unionbound}
+For every $x\in\Z_{Q_{i-1}}$,
+\[
+  \alpha_i(x)\le\min\bigl(1,U_i(x)\bigr),\qquad U_i(x)=\sum_{d\in N_i}p_i^{-j_d}\,\one_{A'_d}(x).
+\]
+\end{lemma}
+
+\begin{proof}
+An integer $z$ lies in $A_d$ if and only if $z\equiv a_d\pmod{m'_d}$ and $z\equiv a_d\pmod{p_i^{j_d}}$. Hence the
+fibre $F(x)$ meets $A_d$ in $p_i^{\gamma_i-j_d}$ points if $x\in A'_d$ and in no point otherwise. Divide by
+$|X_i|=p_i^{\gamma_i}$ and use the union bound; trivially $\alpha_i\le1$.
+\end{proof}
+
+\subsection{The moment bounds of BBMST}\label{sec:bbmst-moments}
+
+For comparison we record the bounds of \cite{BBMST}. Let $M_i^{(k)}=\E_{P_{i-1}}[\alpha_i^k]$ and
+$\nu(d)=\prod_{p_j\mid d}\nu_j$ for $d\mid Q$ \cite[(8)]{BBMST}.
+
+\begin{lemma}[{\cite[Lemma~3.3]{BBMST}}]\label{lem:bbmst33}
+If $0<\delta_i<1$, then $P_i(B_i)\le\min\bigl(M_i^{(1)},\,M_i^{(2)}/(4\delta_i(1-\delta_i))\bigr)$.
+\end{lemma}
+
+The first bound follows from $P_i\le P_{i-1}$ on $B_i$, the second from \cref{lem:F3} and
+$(\alpha-\delta)^+\le\alpha^2/(4\delta)$. BBMST bound the moments via \cref{lem:unionbound} and the estimate
+$P_{i-1}(b+d\Z)\le\nu(\gcd(d,Q_{i-1}))/d$ \cite[Lemma~3.4]{BBMST}, which gives \cite[Lemma~3.6]{BBMST}
+\begin{equation}\label{eq:bbmst36}
+  M_i^{(k)}\le\sum_{d_1,\dots,d_k\in N_i}p_i^{-(j_{d_1}+\dots+j_{d_k})}\,
+  \frac{\nu\bigl(\lcm(m'_{d_1},\dots,m'_{d_k})\bigr)}{\lcm(m'_{d_1},\dots,m'_{d_k})},
+\end{equation}
+and \cite[Theorem~3.2]{BBMST}, valid for $\delta_j\in[0,\frac12]$,
+\begin{equation}\label{eq:bbmst32}
+  M_i^{(2)}\le\frac1{(p_i-1)^2}\prod_{j<i}\Bigl(1+\frac{\nu_j(3p_j-1)}{(p_j-1)^2}\Bigr).
+\end{equation}
+\Cref{thm:comparison} below reproves \eqref{eq:bbmst36} (\cref{sec:bbmst-lemmas}), and \cref{sec:loss} replaces
+the second-moment bound by the hinge.

@@ -1,0 +1,201 @@
+% !TEX program = xelatex
+% Build:  cd "$DELIV/paper" && tectonic main.tex
+% Figures and generated tables:  python3 make_figures.py   (writes fig/*.pdf and gen/*.tex from ../logs)
+\documentclass[11pt]{amsart}
+
+%% =====================================================================================
+%% HEADLINE NUMBERS.  If a bound improves, edit this block (and rerun make_figures.py so that gen/*.tex and
+%% fig/*.pdf are regenerated from the new logs).
+%%   Theorem 1.1 (the headline):   m = 14,501. Certified in C: certificate-14501/ (checker rigx.c, BBMST Thm 6.1 tail).
+%%                                  Formally verified in Lean: lean/ (checker Checker2Impl at X = 2e9, proof
+%%                                  Checker2Math + Checker2Sound + Tail2, root Checker2Sound.not_covers_14501).
+%%   Theorem 1.3 (first formalization, Lean):  m = 16,000, logs/, src/rigcert.c and lean/ (root not_covers).
+%% Numbers that describe the certified runs are also written out in sections/computation.tex (output lines,
+%% cross-checks), sections/evaluation.tex and sections/appendix.tex (command lines, expected output).
+%% The numerical observations of Section 7 refer to experiments at m = 16,000 or near m = 14,500 and are
+%% written out literally on purpose.
+%% =====================================================================================
+% --- Theorem 1.1: least modulus <= 14,500 (certificate-14501/output/cert_14501.txt) -------------------
+\newcommand{\Mbound}{14{,}500}          % every distinct covering system has least modulus <= \Mbound
+\newcommand{\Mzero}{14{,}501}           % distinct moduli all >= \Mzero never cover Z
+\newcommand{\MzeroNum}{14501}           % the same number, without the thousands separator
+\newcommand{\etaMain}{0.999927}         % certified total for p <= 10^9, rounded up in the 6th decimal
+\newcommand{\etaMainTwelve}{0.999926855181}      % certified total as printed (12 digits, an upper bound)
+\newcommand{\etaMainFull}{0.99992685518076208}   % the certified double, %.17g
+\newcommand{\etaMainHex}{0x1.fff669aac979p-1}    % the certified double, hex
+\newcommand{\blockAMain}{0.234899856304}   % primes p < 50
+\newcommand{\blockBMain}{0.763569005991}   % primes 50 <= p <= 2e5
+\newcommand{\blockCMain}{0.001457990070}   % primes 2e5 < p <= 1e9
+\newcommand{\TupMain}{705974.99523353134}  % certified upper bound for T_k
+\newcommand{\muLoMain}{7.3144\cdot 10^{-5}}   % <= mu_lo = 7.3144819237924708e-05
+\newcommand{\fUpMain}{9.6518\cdot 10^{9}}     % >= f_up = 9651742974.9486885
+\newcommand{\critLoMain}{1.5787\cdot 10^{10}} % <= crit_lo = 15787081835.245779
+\newcommand{\kPrimesMain}{50{,}847{,}534}  % k = pi(10^9)
+\newcommand{\PmaxMain}{10^{9}}             % largest prime treated explicitly
+\newcommand{\refEtaLo}{0.99992148081}      % the referee's rigorous interval for the sum of the exact level bounds
+\newcommand{\refEtaHi}{0.99992282962}
+\newcommand{\runtimeMain}{about $90$ seconds}
+% --- Theorem 1.3: least modulus <= 15,999, formally verified (logs/cert16k.txt, lean/) ----------------
+\newcommand{\MboundLean}{15{,}999}
+\newcommand{\MzeroLean}{16{,}000}
+\newcommand{\MzeroLeanNum}{16000}
+\newcommand{\etaCert}{0.997385}         % certified total for p <= Pmax, rounded up in the 6th decimal
+\newcommand{\etaCertTwelve}{0.997384393974}      % certified total as printed (12 digits, an upper bound)
+\newcommand{\etaCertFull}{0.9973843939732947}    % the certified double, %.17g
+\newcommand{\etaCertHex}{0x1.fea92ad34fe9cp-1}   % the certified double, hex
+\newcommand{\blockA}{0.230571210247}    % primes p < 50
+\newcommand{\blockB}{0.760302397508}    % primes 50 <= p <= 2e5
+\newcommand{\blockC}{0.006510785610}    % primes 2e5 < p <= 2e8
+\newcommand{\Tup}{321051.36453405279}   % certified upper bound for T_k
+\newcommand{\TupCeil}{321051.3646}        % a decimal upper bound for \Tup (used in the proof of Theorem 1.3)
+\newcommand{\muLo}{0.0026156}           % mu_lo = RD(1 - eta_up) = 0.0026156060267052972 (approx.)
+\newcommand{\fUp}{1.2275\cdot 10^{8}}   % >= certified f_up = 122744542.28049764 (upper bound for f_k = T_k/mu_k)
+\newcommand{\critLo}{2.8386\cdot 10^{9}} % <= certified crit_lo = 2838631802.0518227 (lower bound for (log k + log log k - 3)^2 k)
+\newcommand{\kPrimes}{11{,}078{,}937}   % k = pi(Pmax)
+\newcommand{\Pmax}{2\cdot 10^{8}}       % largest prime treated explicitly (m = 16,000)
+\newcommand{\PX}{2\cdot 10^{5}}         % largest prime bounded by the comparison bound (m = 16,000); both dumps end here
+\newcommand{\tailElem}{0.000849343}     % (100/189) T_up / Pmax, rounded up
+\newcommand{\etaElem}{0.998234}         % \etaCertFull + \tailElem, rounded up
+\newcommand{\xcheckExact}{0.98120}      % sum over p <= 2e5 of the exact values of the tightest candidate bounds
+\newcommand{\xcheckSlack}{0.0097}       % checker's slack over p <= 2e5
+\newcommand{\runtimeCert}{about $2.5$ minutes}
+\newcommand{\prevBound}{616{,}000}      % BBMST (Invent. Math. 2022)
+% Lean checker run (SCRATCH/agents/checkerimpl/full_final.out)
+\newcommand{\etaLean}{0.997384786285}
+\newcommand{\TupLean}{321095.49941797}
+\newcommand{\tailLean}{0.000849458994}
+\newcommand{\totalLean}{0.998234245279}
+% --- Formal certificate of Theorem 1.1 (lean/MinModulus/Tail2/CertT14501.lean; SCRATCH/agents/lean2/tail2/NOTES.md §4)
+% Exact values: numerators over 2^62, printed rounded UP.
+\newcommand{\XFormal}{2\cdot10^{9}}           % explicit range of the formal certificate
+\newcommand{\etaFormal}{0.999941815948}       % sum of the per-prime costs, p <= 2e9
+\newcommand{\etaFormalA}{0.037107790428}      % p < 17 (first moment)
+\newcommand{\etaFormalB}{0.961380248462}      % 17 <= p <= 2e5 (S/B/H and tau-split, per prime)
+\newcommand{\etaFormalC}{0.001453777059}      % 2e5 < p <= 2e9 (tau-split, blocks)
+\newcommand{\TupFormal}{796860.64557339}      % upper bound for T_X, X = 2e9
+\newcommand{\tailFormal}{0.000047341491}      % ceil(T * 5941/(50000 X)) / 2^62
+\newcommand{\totalFormal}{0.999989157439}     % eta + tail
+\newcommand{\slackFormal}{1.08\cdot10^{-5}}
+% Intermediate formal certificates (same development): m = 14,600 (X = 2e8, tail of Lemma 4.7) and m = 14,505
+% (X = 1e9, tail constant 12473/100000).
+\newcommand{\totalLeanTwo}{0.999622630}
+\newcommand{\totalLeanThree}{0.99997629}
+% --- Section 8 ------------------------------------------------------------------------------------------
+\newcommand{\etaSqf}{0.997325494880}
+\newcommand{\etaSqfLean}{0.998573418}
+\newcommand{\etaOddA}{0.998377513919}
+\newcommand{\etaOddB}{0.758709339068}
+\newcommand{\etaOddC}{0.990608082164}
+%% =====================================================================================
+
+\usepackage[margin=1.12in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{alltt}
+\usepackage{needspace}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=green!35!black,urlcolor=blue!55!black]{hyperref}
+\usepackage[capitalise,nameinlink]{cleveref}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\setlength{\emergencystretch}{2em}
+
+% generated macros (derived statistics); see make_figures.py
+\input{gen/derived.tex}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem*{theorem*}{Theorem}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{observation}[theorem]{Observation}
+\crefname{observation}{Observation}{Observations}
+
+\numberwithin{equation}{section}
+
+% notation
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\ZZ}[1]{\Z_{#1}}
+\newcommand{\pos}[1]{\left(#1\right)^{+}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\bk}{\mathbf{k}}
+\newcommand{\BBMST}{\cite{BBMST}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title[The least modulus of a distinct covering system]{The least modulus of a distinct covering system\\ is at most \Mbound}
+\author{Grayson MacKenzie}
+\date{\today}
+
+\begin{abstract}
+A covering system is a finite collection of congruences $a_i \pmod{d_i}$ whose union is $\Z$. Erd\H{o}s asked
+whether the least modulus of a covering system with distinct moduli can be arbitrarily large. Hough showed that
+it cannot, with the bound $10^{16}$, and Balister, Bollob\'as, Morris, Sahasrabudhe and Tiba lowered the bound to
+$\prevBound$. We prove that congruences with distinct moduli, all at least $\Mzero$, never cover the integers, so
+that every covering system with distinct moduli has least modulus at most $\Mbound$.
+
+The proof keeps the distortion method of Balister et al.\ and replaces its second-moment estimate for the loss
+at each prime by a comparison theorem: for each of the distorted measures and every convex nondecreasing $\varphi$,
+the expectation of $\varphi$ of the number of progressions containing a point is at most its value for aligned
+progressions under an explicit tilted product measure. This extends Rogers' theorem on sieving. It bounds the loss at
+each prime by an expectation over a random smooth number, which we evaluate exactly, up to explicitly bounded
+truncations, by a certified computation in directed rounding. The computation has been cross-checked by independent
+code and refereed by an AI agent. The whole proof, including a separate evaluation of the bounds, has also been
+formally verified in Lean~4 with Mathlib, modulo one \texttt{native\_decide} evaluation of a numerical checker written in Lean. The method also gives least modulus at most $6$
+for distinct squarefree moduli, also with a formally verified proof, new divisibility conditions for coverings with odd moduli, the nonexistence of
+distinct coverings of $\mathbb{F}_q[x]$ for $q\ge11$, and explicit minimum-norm bounds for distinct coverings of
+$\Z[i]$ and $\Z[\omega]$.
+\end{abstract}
+
+\maketitle
+\setcounter{tocdepth}{1}
+\tableofcontents
+
+\input{sections/intro.tex}
+\input{sections/distortion.tex}
+\input{sections/comparison.tex}
+\input{sections/loss.tex}
+\input{sections/evaluation.tex}
+\input{sections/computation.tex}
+\input{sections/limits.tex}
+\input{sections/further.tex}
+
+\subsection*{Acknowledgements}
+This work was carried out with substantial assistance from AI systems (Anthropic's Claude), including the design
+of the computation, the proofs, independent re-verification and the Lean formalization; all computations are
+reproducible from the accompanying code. The results have been checked by independent recomputation, by randomized,
+exhaustive and brute-force tests and by separate AI referee passes over the proofs and the computations.
+\Cref{thm:main,thm:lean,thm:squarefree,thm:sf23}, and each of the nine statements of \cref{thm:odd,thm:odd2}, have been
+formally verified in Lean~4 modulo one \texttt{native\_decide} evaluation each, and \cref{thm:sf7type} modulo $124$
+such evaluations; \cref{thm:sf29,thm:sf6smooth} and the results of \cref{sec:rings} have been certified,
+cross-checked and refereed by AI agents but not formalized. None of the results has yet been refereed by human experts. We thank the
+authors of \cite{BBMST}, whose distortion method and careful exposition this work builds on.
+% TODO(acknowledgements): add funding and personal acknowledgements.
+
+\input{sections/references.tex}
+
+\appendix
+\input{sections/appendix.tex}
+
+\end{document}

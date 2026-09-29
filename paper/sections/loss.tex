@@ -1,0 +1,263 @@
+%% =====================================================================================
+\section{The loss at one prime}\label{sec:loss}
+%% =====================================================================================
+
+In this section $\cA=\{A_d:d\in D\}$ is a family of progressions with distinct moduli, all at least $m\ge2$, and
+the measures $P_i$ are defined as in \cref{sec:measures}. It is convenient to regard the distortion parameters as
+a \emph{schedule} defined on all primes: a function $q\mapsto\delta_q\in[0,1)$ with $\delta_i=\delta_{p_i}$ for the
+primes $p_i\mid Q$, and $\nu_q=1/(1-\delta_q)$. For primes $q\nmid Q$ the value $\delta_q$ does not affect the
+measures, but it enters the bounds below.
+
+\subsection{The pointwise step}
+
+\begin{lemma}\label{lem:pointwise}
+Let $0\le t\le\delta<1$, $\alpha\in[0,1]$ and $U\ge\alpha$. Then
+\[
+  \frac{(\alpha-\delta)^+}{1-\delta}\le\frac{(U-t)^+}{1-t}.
+\]
+The hypothesis $t\le\delta$ cannot be dropped.
+\end{lemma}
+
+\begin{proof}
+The left-hand side is nondecreasing in $\alpha$, so we may replace $\alpha$ by $\min(1,U)$. If $U\le\delta$, the
+left-hand side vanishes. If $\delta<U\le1$, both sides are affine functions of $U$ on $[\delta,1]$ (note $U>t$),
+they are equal to $1$ at $U=1$, and the left-hand side has the larger slope $1/(1-\delta)\ge1/(1-t)$; hence it is
+the smaller one on $[\delta,1]$. If $U>1$, the left-hand side equals $1\le(U-t)/(1-t)$. If $t>\delta$, the same
+comparison of slopes shows that the inequality fails for $\alpha=U$ slightly below $1$.
+\end{proof}
+
+\subsection{The random smooth number and the weights}\label{sec:smooth}
+
+\begin{definition}\label{def:smooth}
+Let $p$ be a prime. The \emph{random $(p-1)$-smooth number} is $s=s_p=\prod_{q<p}q^{v_q}$, the product over the
+primes $q<p$, where the exponents $v_q$ are independent and $v_q$ has the $(q,\nu_q)$-tilted law of
+\cref{def:tilted}: $\P(v_q\ge a)=\min(1,\nu_qq^{-a})$. For a positive integer $d$ let
+\[
+  j_0(d)=\min\{j\ge1:\ dp^j\ge m\},\qquad
+  w_p(d)=\sum_{j\ge j_0(d)}p^{-j}=\frac{p^{\,1-j_0(d)}}{p-1},\qquad
+  U_p(s)=\sum_{d\mid s}w_p(d).
+\]
+\end{definition}
+
+The number $w_p(d)$ is the total weight $\sum p^{-j}$ of the moduli $dp^j\ge m$ that a family could contain at
+level $p$ with cofactor $d$. We record some elementary facts, assuming $1\le\nu_q\le q$ for all $q<p$.
+\begin{enumerate}[label=(\roman*)]
+\item $0<w_p(d)\le1/(p-1)$, with equality if and only if $dp\ge m$. Hence $U_p(s)\le\tau(s)/(p-1)$, where $\tau$
+  is the number of divisors, with equality if $p\ge m$.
+\item If $s\mid s'$, then $U_p(s)\le U_p(s')$.
+\item For a $(p-1)$-smooth $d$, $\P(d\mid s)=\prod_{q^a\,\|\,d}\nu_qq^{-a}=\nu(d)/d$, where
+  $\nu(d)=\prod_{q\mid d}\nu_q$. Consequently
+  \begin{equation}\label{eq:EU}
+    \E\bigl[U_p(s)\bigr]=\sum_{d}w_p(d)\frac{\nu(d)}{d}
+    =\sum_{j\ge1}p^{-j}\Bigl(\prod_{q<p}\Bigl(1+\frac{\nu_q}{q-1}\Bigr)
+    -\sum_{\substack{d<\lceil m/p^j\rceil\\ d\ (p-1)\text{-smooth}}}\frac{\nu(d)}{d}\Bigr),
+  \end{equation}
+  since $w_p(d)=\sum_{j\ge1}p^{-j}\one\{d\ge\lceil m/p^j\rceil\}$ and
+  $\sum_{d\ (p-1)\text{-smooth}}\nu(d)/d=\prod_{q<p}(1+\nu_q/(q-1))$; the inner sums are finite and vanish once
+  $p^j\ge m$.
+\item For $\theta\ge0$, $\E[\tau(s)^\theta]=\prod_{q<p}\E[(v_q+1)^\theta]$ with
+  \begin{equation}\label{eq:Etheta}
+    \E\bigl[(v_q+1)^\theta\bigr]=1+\nu_q\Bigl(1-\frac1q\Bigr)\sum_{a\ge1}q^{-a}\bigl((a+1)^\theta-1\bigr),
+    \qquad
+    \E\bigl[(v_q+1)^2\bigr]=1+\frac{\nu_q(3q-1)}{(q-1)^2}.
+  \end{equation}
+  The second formula is the factor of \cite[Lemma~3.7]{BBMST}.
+\end{enumerate}
+Facts (i) and (ii) are immediate. For (iv), $\E[(v+1)^\theta]=(1-\nu/q)+\sum_{a\ge1}\nu q^{-a}(1-1/q)(a+1)^\theta$,
+and $\nu/q=\nu(1-1/q)\sum_{a\ge1}q^{-a}$; for $\theta=2$ use $\sum_{a\ge1}x^a(a^2+2a)=x(3-x)/(1-x)^3$ with
+$x=1/q$.
+
+\subsection{Enlargement}
+
+For $d\in N_i$ recall the factorization $d=m'_dp_i^{j_d}$ of \eqref{eq:mprime}.
+
+\begin{lemma}[enlargement]\label{lem:enlargement}
+Let $p=p_i$ and let $s'$ be a positive integer all of whose prime factors are less than $p$. Then
+\[
+  \sum_{d\in N_i}p^{-j_d}\,\one\{m'_d\mid s'\}\le U_p(s').
+\]
+\end{lemma}
+
+\begin{proof}
+The map $d\mapsto(m'_d,j_d)$ is injective on $N_i$, because $d=m'_dp^{j_d}$. This is where the distinctness of the
+moduli is used: the family contains at most one progression for each pair $(m',j)$. For $d\in N_i$ we have
+$m'_dp^{j_d}=d\ge m$ and $j_d\ge1$, so $j_d\ge j_0(m'_d)$. Hence the left-hand side is at most
+$\sum_{m'\mid s'}\sum_{j\ge j_0(m')}p^{-j}=U_p(s')$.
+\end{proof}
+
+\subsection{The per-prime bound}
+
+\begin{theorem}\label{thm:perprime}
+Let $1\le i\le n$ and $p=p_i$. Then for every $t$ with $0\le t\le\delta_i$,
+\[
+  P_i(B_i)\le\frac{\E\bigl[(U_p(s)-t)^+\bigr]}{1-t},
+\]
+where $s=s_p$ is the random $(p-1)$-smooth number of \cref{def:smooth}.
+\end{theorem}
+
+\begin{proof}
+By \cref{lem:F3}, \cref{lem:unionbound} and \cref{lem:pointwise},
+\[
+  P_i(B_i)=\frac{\E_{P_{i-1}}[(\alpha_i-\delta_i)^+]}{1-\delta_i}\le\frac{\E_{P_{i-1}}[(U_i-t)^+]}{1-t},\qquad
+  U_i=\sum_{d\in N_i}p^{-j_d}\one_{A'_d}.
+\]
+By \cref{lem:kernel}, $P_{i-1}$ is a $(\nu_1,\dots,\nu_{i-1})$-bounded measure on $X_1\times\dots\times X_{i-1}$,
+and by \eqref{eq:Aprime-cylinder} each $A'_d$ is a cylinder with depths $a_j(A'_d)=v_{p_j}(m'_d)$. Apply
+\cref{thm:comparison} with $\varphi(u)=(u-t)^+$. Let $V_j$ ($j<i$) be independent with the $(p_j,\nu_j)$-tilted laws
+and $s'=\prod_{j<i}p_j^{V_j}$; then $\prod_{j<i}\one\{V_j\ge v_{p_j}(m'_d)\}=\one\{m'_d\mid s'\}$, so
+\[
+  \E_{P_{i-1}}\bigl[(U_i-t)^+\bigr]\le\E\Bigl[\Bigl(\sum_{d\in N_i}p^{-j_d}\one\{m'_d\mid s'\}-t\Bigr)^+\Bigr]
+  \le\E\bigl[(U_p(s')-t)^+\bigr]\le\E\bigl[(U_p(s)-t)^+\bigr].
+\]
+The second inequality is \cref{lem:enlargement}. For the third, let $s''=\prod q^{v_q}$ over the primes $q<p$ that
+do not divide $Q$, with independent tilted exponents; then $s=s's''$ has the law of \cref{def:smooth} and
+$U_p(s')\le U_p(s)$ by (ii).
+\end{proof}
+
+For $t=\delta_i=0$ the bound is the first moment $\E[U_p(s)]$. The next lemma allows other parameters.
+
+\begin{lemma}\label{lem:delta-mono}
+For $\alpha\in[0,1]$, the function $\delta\mapsto(\alpha-\delta)^+/(1-\delta)$ is nonincreasing on $[0,1)$.
+Consequently $P_i(B_i)\le\E_{P_{i-1}}[(\alpha_i-d)^+]/(1-d)$ for every $d\in[0,\delta_i]$.
+\end{lemma}
+
+\begin{proof}
+Where it is positive, the derivative is $(\alpha-1)/(1-\delta)^2\le0$. The second statement follows from
+\cref{lem:F3}.
+\end{proof}
+
+\begin{corollary}[moment variants]\label{cor:variants}
+Under the hypotheses of \cref{thm:perprime}:
+\begin{enumerate}[label=(\alph*)]
+\item $P_i(B_i)\le\E[U_p(s)]$.
+\item For $0<d\le\delta_i$, $P_i(B_i)\le\E[U_p(s)^2]/(4d(1-d))$.
+\item For $\theta>1$ and $0<d\le\delta_i$,
+  \[
+    P_i(B_i)\le\frac{c_\theta(d)\,\E[U_p(s)^\theta]}{1-d}\le\frac{c_\theta(d)\,\E[\tau(s)^\theta]}{(p-1)^\theta(1-d)},
+    \qquad c_\theta(d)=\max_{u\in[d,1]}\frac{u-d}{u^\theta}.
+  \]
+  Explicitly, $c_\theta(d)=1-d$ if $\theta d\ge\theta-1$, and
+  $c_\theta(d)=\frac{d}{\theta-1}\bigl(\frac{\theta d}{\theta-1}\bigr)^{-\theta}$ otherwise.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(a) is \cref{thm:perprime} with $t=0$. For (b) and (c), start from \cref{lem:delta-mono}. For (b) use
+$(\alpha-d)^+\le\alpha^2/(4d)$, which is $(\alpha-2d)^2\ge0$, then $\alpha_i\le U_i$ and \cref{thm:comparison} with
+$\varphi(u)=u^2$, followed by \cref{lem:enlargement} and fact (ii) as in the proof of \cref{thm:perprime}. For (c)
+observe that $(\min(1,u)-d)^+\le c_\theta(d)u^\theta$ for $u\ge0$: for $u<d$ the left side vanishes, for
+$u\in[d,1]$ this is the definition of $c_\theta$, and for $u>1$ the left side is $1-d\le c_\theta(d)\le
+c_\theta(d)u^\theta$. Since $\alpha_i\le\min(1,U_i)$ and $u\mapsto u^\theta$ is convex and nondecreasing, the same
+chain gives the first inequality; the second is fact (i). Finally, $g(u)=(u-d)u^{-\theta}$ has
+$g'(u)=u^{-\theta-1}\bigl(\theta d-(\theta-1)u\bigr)$, so $g$ increases up to $u^*=\theta d/(\theta-1)$ and decreases
+afterwards; its maximum on $[d,1]$ is $g(u^*)=\frac{d}{\theta-1}(u^*)^{-\theta}$ if $u^*\le1$ and $g(1)=1-d$
+otherwise.
+\end{proof}
+
+Part (b) is BBMST's second-moment bound, with $M_i^{(2)}$ replaced by the enlarged moment $\E[U_p(s)^2]$; part (c)
+with $\theta=4$ and the unconstrained maximum $27/(256d^3)$ in place of $c_4(d)$ is the bound of Filaseta and
+Kalogirou \cite{FilasetaKalogirou2026}.
+
+\subsection{Reduction to a finite computation}\label{sec:criterion}
+
+The primes beyond a large threshold $X$ are handled with $\delta_q=\frac12$ and the following elementary estimate,
+which replaces \cite[Theorem~6.1]{BBMST} and Dusart's lower bound for the $k$-th prime.
+
+\begin{lemma}[Chebyshev tail]\label{prop:tail}
+Let $X\ge2^{27}$ be an integer, let $S$ be a finite set of primes, all greater than $X$, and let
+$g(q)=2(3q-1)/(q-1)^2$. Then
+\[
+  \sum_{p\in S}\frac{1}{(p-1)^2}\prod_{\substack{q\in S\\ q<p}}\bigl(1+g(q)\bigr)\le\frac{100}{189\,X}.
+\]
+\end{lemma}
+
+\begin{proof}
+\emph{Primes in a dyadic block.} Let $n\ge2^{27}$ and let $T$ be a set of primes in $(n,2n]$. The product of the
+elements of $T$ divides $\binom{2n}{n}\le4^n$ and each element exceeds $n$, so $n^{|T|}\le4^n$. Since
+$n\ge2^{27}$, this gives $2^{27|T|}\le2^{2n}$, that is, $|T|\le2n/27$.
+
+\emph{The product over a block.} For $q>n\ge4000$ we have $q-1\ge n$ and
+$g(q)=6/(q-1)+4/(q-1)^2\le(6+4/n)/n\le6.001/n$. Hence
+$\prod_{q\in T}(1+g(q))\le\exp(|T|\cdot6.001/n)\le\exp(12.002/27)\le\frac{25}{16}$, where the last inequality is a
+numerical fact ($\exp(0.44452)<1.5598$).
+
+\emph{Summation.} Split $S$ into the blocks $S_J=S\cap(X2^J,X2^{J+1}]$, $J\ge0$, and apply the two previous steps
+with $n=X2^J\ge2^{27}$. For $p\in S_J$ the product over $q\in S$, $q<p$, runs over the blocks $S_0,\dots,S_J$, so it
+is at most $(25/16)^{J+1}$, while $(p-1)^2\ge(X2^J)^2$ and $|S_J|\le2X2^J/27$. Hence block $J$ contributes at most
+\[
+  \frac{2X2^J}{27}\cdot\Bigl(\frac{25}{16}\Bigr)^{J+1}\cdot\frac1{(X2^J)^2}
+  =\frac{25}{216\,X}\Bigl(\frac{25}{32}\Bigr)^{J},
+\]
+and summing the geometric series gives $\frac{25}{216X}\cdot\frac{32}{7}=\frac{100}{189X}$.
+\end{proof}
+
+\begin{lemma}[sharpened Chebyshev tail]\label{prop:tailtwo}
+In the setting of \cref{prop:tail}, the sum is at most $C_X/X$, where $C_X=\frac{7051}{50000}$ if $X\ge2\cdot10^8$,
+$C_X=\frac{12473}{100000}$ if $X\ge10^9$, and $C_X=\frac{5941}{50000}$ if $X\ge2\cdot10^9$.
+\end{lemma}
+
+\begin{proof}[Outline]
+The complete proof is formal (\path{lean/MinModulus/Tail2/}); we outline it. Write $\theta(X,N]=\sum_{X<q\le N}\log q$
+over primes $q$.
+\begin{enumerate}[label=(\arabic*)]
+\item \emph{Chebyshev with a leftover.} For $10^8\le X\le N$,
+  $\theta(X,N]\le2(\log2+10^{-6})(N-X)+\log(4/3)\,X$. The interval is cut into dyadic pieces from the top, each bounded
+  by $\binom{2M}{M}\le4^M$ or $\binom{2M+1}{M}\le4^M$ as in the proof of \cref{prop:tail}, and the remaining piece
+  $(X,N']$ with $N'<2X$ by $\binom{N'}{X}3^X\le4^{N'}$.
+\item \emph{Partial summation.} Summation by parts over all integers in $(X,N]$ turns (1) into
+  $\sum_{X<q\le N}g(q)\le a\log(\log N/\log X)+b/\log X$ with $a=12(\log2+10^{-6})(1+10^{-7})$ and
+  $b=6(1+10^{-7})\log(4/3)$.
+\item \emph{Telescoping.} With $P(x)=\prod_{q\in S,\,q\le x}(1+g(q))$ we have
+  $\prod_{q<p}(1+g(q))\,g(p)=P(p)-P(p^-)$ and $1/(p-1)^2=g(p)/(2(3p-1))$. Summation by parts on the dyadic cells
+  $[X2^k,X2^{k+1}]$, $0\le k<30$, with a potential built from chords of the convex function
+  $v\mapsto(1+v/\log X)^a$, bounds the sum over $S\cap(X,X2^{30}]$ by an explicit expression in the values of this
+  function at $v=k\log2$; these $31$ values are bounded in exact rational arithmetic.
+\item The primes of $S$ above $X2^{30}$ contribute at most $\frac{100}{189}\,P(X2^{30})/(X2^{30})$, by
+  \cref{prop:tail} applied at $X2^{30}$, and $P(X2^{30})$ is bounded by (2).\qedhere
+\end{enumerate}
+\end{proof}
+
+\begin{theorem}[the criterion]\label{thm:criterion}
+Let $m\ge2$ and $X\ge2^{27}$ be integers, and let $q\mapsto\delta_q$ be a schedule with $\delta_q\in[0,\frac12]$ for
+all primes $q$ and $\delta_q=\frac12$ for $q>X$. For each prime $p\le X$ let $c_p$ be a real number such that at
+least one of the following holds, where $s=s_p$:
+\begin{enumerate}[label=(\roman*)]
+\item $c_p\ge\E[(U_p(s)-t)^+]/(1-t)$ for some $t\in[0,\delta_p]$;
+\item $c_p\ge\E[U_p(s)^2]/(4d(1-d))$ for some $d\in(0,\delta_p]$;
+\item $c_p\ge c_\theta(d)\E[\tau(s)^\theta]/\bigl((p-1)^\theta(1-d)\bigr)$ for some $\theta>1$ and $d\in(0,\delta_p]$.
+\end{enumerate}
+Let $T_X=\prod_{q\le X}\bigl(1+\nu_q(3q-1)/(q-1)^2\bigr)$. If
+\begin{equation}\label{eq:criterion}
+  \sum_{p\le X}c_p+\frac{100}{189}\cdot\frac{T_X}{X}<1,
+\end{equation}
+then no family of congruences with distinct moduli, all at least $m$, covers $\Z$.
+\end{theorem}
+
+\begin{proof}
+Let $\cA$ be such a family and run the distortion method with $\delta_i=\delta_{p_i}$. All tilts satisfy
+$1\le\nu_q\le2\le q$. For $p_i\le X$, \cref{thm:perprime} and \cref{cor:variants} give $P_i(B_i)\le c_{p_i}$; in
+particular $c_p\ge0$ for all $p\le X$. For $p=p_i>X$ we have $\delta_i=\frac12$, and
+$(u-\frac12)^+/\frac12\le u^2$ for all $u\ge0$ (since $u^2-2u+1\ge0$), so \cref{thm:perprime}, fact (i) and
+\eqref{eq:Etheta} give
+\[
+  P_i(B_i)\le\E\bigl[U_p(s)^2\bigr]\le\frac{\E[\tau(s)^2]}{(p-1)^2}
+  =\frac1{(p-1)^2}\prod_{q<p}\Bigl(1+\frac{\nu_q(3q-1)}{(q-1)^2}\Bigr)
+  \le\frac{T_X}{(p-1)^2}\prod_{X<q<p}\bigl(1+g(q)\bigr),
+\]
+because $\nu_q=2$ for $q>X$. Summing over the primes $p_i>X$, which form a subset of the set $S$ of all primes in
+$(X,p_n]$, and applying \cref{prop:tail} to $S$, we obtain $\sum_{p_i>X}P_i(B_i)\le\frac{100}{189}T_X/X$.
+Therefore $\sum_iP_i(B_i)$ is at most the left-hand side of \eqref{eq:criterion}, and \cref{prop:F4} applies.
+\end{proof}
+
+\begin{remark}\label{rem:criterion-sharp}
+By \cref{prop:tailtwo}, \cref{thm:criterion} remains true with $\frac{100}{189}$ replaced in \eqref{eq:criterion} by
+the constant $C_X$ of \cref{prop:tailtwo} when $X\ge2\cdot10^8$; the proof is the same. The formal proof of
+\cref{thm:main} uses this with $X=\XFormal$ (\cref{sec:certified-formal}).
+\end{remark}
+
+\begin{remark}\label{rem:any-schedule}
+The schedule and the choice among (i)--(iii) are free parameters: any choice gives a valid criterion. In
+particular, the numbers $\delta_q$ need not be the ones that minimize the left-hand side of \eqref{eq:criterion},
+and they need not be computed exactly, as long as the $c_p$ are upper bounds for the corresponding quantities
+computed with the $\delta_q$ and $\nu_q$ actually used (see \cref{sec:rounding}).
+\end{remark}

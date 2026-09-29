@@ -1,0 +1,207 @@
+%% =====================================================================================
+\section{The distortion schedules}\label{app:schedule}
+%% =====================================================================================
+
+Both certified programs evaluate the schedule in the same way, in double precision with round-to-nearest. Given
+knots $(q_0,\delta_0),\dots,(q_n,\delta_n)$ and a threshold $P_D$, the value at a prime $p\ge P_D$ is $d_p=\delta_0$
+if $\log p\le\log q_0$, $d_p=\delta_n$ if $\log p\ge\log q_n$, and otherwise
+\[
+  d_p=(1-u)\,\delta_l+u\,\delta_{l+1},\qquad u=\frac{\log p-\log q_l}{\log q_{l+1}-\log q_l},
+\]
+where $l$ is the first index with $\log p\le\log q_{l+1}$. For $m=\Mzero$, $P_D=17$ and $d_p=0$ for $p<17$; the
+$\nKnotsMain$ knots are listed in \cref{tab:knots-main} (and in \path{certificate-14501/schedule/sched_14501.json}). For $m=\MzeroLean$, $P_D=50$, $d_p=0.05$ for $31\le p<50$ and
+$d_p=0$ for $p<31$; the knots are listed in \cref{tab:knots}. The tilt is $\hat\nu_p=\mathrm{RU}(1/\mathrm{RD}(1-d_p))$,
+and the distortion parameter of the proofs is $\delta_p=1-1/\hat\nu_p$ (\cref{sec:rounding}). In the programs' command
+lines the schedules are given by the environment variables \code{KNOTS}, \code{PD}, \code{PSB} and \code{DSB}
+(\cref{app:reproduce}).
+
+\begin{table}[ht]
+\centering
+\caption{The $\nKnotsMain$ knots $(q,\delta)$ of the schedule for $m=\Mzero$.}
+\label{tab:knots-main}
+\footnotesize
+\input{gen/table_knots_main.tex}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{The knots of the schedule for $m=\MzeroLean$ and the corresponding tilts $\nu=1/(1-\delta)$.}
+\label{tab:knots}
+\small
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+$q$ & $50$ & $80$ & $130$ & $220$ & $400$ & $800$ & $2{,}000$ & $8{,}000$ & $50{,}000$\\
+$\delta$ & $0.07$ & $0.1612$ & $0.2191$ & $0.2679$ & $0.3198$ & $0.345$ & $0.3762$ & $0.4031$ & $0.4092$\\
+$\nu$ & $1.0753$ & $1.1922$ & $1.2806$ & $1.3659$ & $1.4702$ & $1.5267$ & $1.6031$ & $1.6753$ & $1.6926$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% =====================================================================================
+\section{The budgets by prime ranges}\label{app:budget}
+%% =====================================================================================
+
+\Cref{tab:budget-main} refines \cref{tab:budget} for the certificate of \cref{thm:main}. For each range it gives the
+number of primes, the range of $\delta_p$, the evaluation used (\cref{sec:eval-overview}), the certified total
+$\sum c_p$ and the total of the certified first moments $\sum\E[U_p]$; the latter, $\sumMonePXMain$ over $p\le\PX$,
+shows how much the distortion gains. For $p>\PX$ the program records the individual costs only at every $500$-th prime;
+the row gives the certified total $C$.
+
+\begin{table}[ht]
+\centering
+\caption{The certified budget for $m=\Mzero$ by prime ranges (from
+\code{certificate-14501/output/dump\_14501.txt.gz}). All sums are rounded up in the sixth decimal.}
+\label{tab:budget-main}
+\small
+\input{gen/table_budget_main.tex}
+\end{table}
+
+\Cref{tab:budget-fine} does the same for the certificate of \cref{thm:lean}, with ranges between consecutive knots
+of its schedule. It also gives the total $\sum b_p$ of the moment bounds of BBMST with the same schedule, and the ratio
+$\sum b_p/\sum c_p$. Over $p\le\PX$ the first moments total $\sumMonePX$ and the moment bounds of BBMST $\sumBBPX$.
+
+\begin{table}[ht]
+\centering
+\caption{The certified budget for $m=\MzeroLean$ between consecutive knots of the schedule (from
+\code{logs/dump16k.txt}). All sums are rounded up in the sixth decimal.}
+\label{tab:budget-fine}
+\small
+\input{gen/table_budget_fine.tex}
+\end{table}
+
+%% =====================================================================================
+\section{Rounding conventions of the checkers}\label{app:rounding}
+%% =====================================================================================
+
+This appendix summarizes \path{src/CERT_NOTES.md} and the header of \path{certificate-14501/src/rigx.c}.
+Throughout, ``up'' means that the computed double is an upper bound for the exact value of the formula applied to the
+computed inputs, and ``down'' a lower bound; the programs are in round-upward mode, and lower bounds use the negation
+idiom of \cref{sec:rounding}.
+
+\emph{Build and self-test.} The sources contain \code{\#pragma STDC FENV\_ACCESS ON} and \code{FP\_CONTRACT OFF}
+and refuse to compile with \code{-ffast-math}. With GNU \code{gcc}, \code{-frounding-math} is required and the
+programs must be built with \code{-O0}: \code{gcc} ignores the \code{FENV\_ACCESS} pragma and at \code{-O1} and above
+may reuse a result across \code{fesetround}; Apple clang~21 honours the pragma at \code{-O2}. At start-up
+the programs check that directed rounding and the negation idiom work and that no constant was folded in
+round-to-nearest.
+
+\emph{First moment.} By \eqref{eq:EU} and \eqref{eq:U-tau}, $\E[U_p(s)]=T_1/(p-1)-U_1$ with
+$T_1=\prod_{q<p}(1+\hat\nu_q/(q-1))$ and $U_1=(p-1)^{-1}\sum_{d<N_1}\nu(d)c(d)/d$, the sum running over
+$(p-1)$-smooth $d$. The product $T_1$ is rounded up and the subtracted partial sum $U_1$ down.
+
+\emph{Second moment.} $\E[U_p(s)^2]$ is computed by a finite inclusion--exclusion formula of the form
+$T/(p-1)^2-2T_1V/(p-1)+S$, where $T=\prod_{q<p}(1+\hat\nu_q(3q-1)/(q-1)^2)$ and $S$, a sum of nonnegative terms
+(the programs assert $\hat\nu_q\le q$, which makes them nonnegative), are rounded up, and the subtracted quantities
+$T_1$ and $V$ are rounded down (see \code{src/CERT\_NOTES.md} for the formula). The divisor $(p-1)^2$ is rounded down
+(\cref{sec:rounding}), and the bound $\E[U_p^2]/(4d(1-d))$ has its denominator rounded down.
+
+\emph{The exact evaluation} (\code{rigx.c}). All dynamic programs (for $T_H$, for $(T,b)$ given a profile, for
+$\tau_s$ and for $(e_2,e_3)$) are positive linear maps, evaluated in round-upward mode with upper bounds for the
+coefficients $\P(v_q=a)$, so every stored probability is an upper bound; in-place updates process the cells in an
+order in which no updated cell is read again. The numbers $c(d)=1-p^{1-j_0(d)}$, $1-\frac1p$ and $t(p-1)$ are rounded
+down, so the thresholds $\beta$ of \cref{sec:SBH} and $X$ of \cref{sec:tausplit} are lower bounds, and the hinges
+are evaluated at these lower thresholds, which is valid since they are nonincreasing in the threshold. The suffix
+sums \eqref{eq:suffix}, the bounds for the pruned subtrees, the lost masses \eqref{eq:lost} and the margin factors are
+rounded up.
+
+\emph{The simpler evaluation} (\code{rigcert.c}). The probabilities $\P(s_A)$ are carried as intervals through the
+enumeration, and $U_A(s_A)$ is rounded up. The dynamic programs for the laws of $\tau(s_A)$ and $\tau(s_B)$ produce
+upper bounds. In $G(k,u)$, the inputs $u$ and $k/(p-1)$ are rounded up and $c=1+(t-u)/a$ is rounded down, which is
+safe because $G$ is monotone in each. The suffix sums for $\E[(\tau(s_B)-c)^+]$ are rounded up. The weights
+$R_k=\P_{\mathrm{up}}(\tau(s_A)=k)-\P_{\mathrm{lo}}(\text{enumerated},\tau(s_A)=k)$ use the enumerated mass rounded
+down. Finally $1-t$ is rounded down. The program enforces $t\le d_p$ exactly.
+
+\emph{Fractional moments.} $q^{-a}$ is formed by repeated division in the required direction, $(a+1)^\theta$ by
+repeated multiplication and a directed square root, and the series \eqref{eq:Etheta} is summed with the geometric
+bound for its remainder given in \cref{sec:theta}. The constant $c_\theta$ is rounded up: the program uses the
+unconstrained maximum $\frac{d}{\theta-1}(u^*)^{-\theta}$ with $u^*$ rounded down, or $1-d$ if the lower bound for $u^*$
+exceeds $1$. The products $\E[\tau(s)^\theta]$ are rounded up, and $(p-1)^\theta$ and $1-d$ down.
+
+\emph{Totals and the tail tests.} The total $\eta$ is the sum of the costs, rounded up. For
+\cref{prop:bbmst61}, $\mu_{\mathrm{lo}}=\mathrm{RD}(1-\eta_{\mathrm{up}})$ and
+$f_{\mathrm{up}}=\mathrm{RU}(T_{\mathrm{up}}/\mu_{\mathrm{lo}})$; the lower bound for $(\log k+\log\log k-3)^2k$ uses lower
+bounds for the logarithms from the truncated series $\log y=2\sum_{i\ge0}z^{2i+1}/(2i+1)$, $z=(y-1)/(y+1)$, whose
+terms are positive (with $\log2$ from the same series); the programs check $k\ge10$ and that the base is positive.
+The logarithm lower bounds were compared with $50$-digit values.
+
+\emph{Audits.} \code{rigcert.c} was derived from a floating-point prototype, which computed in round-to-nearest,
+allowed $t$ slightly above $\delta_p$, could round the tilt below $1/(1-\delta_p)$, computed two truncation tails with
+cancellation and truncated a series without bounding its remainder; all of this is corrected in the certified program,
+which also refuses a debugging option that disables the tilt. A later audit found the rounding gap described in
+\cref{sec:rounding}, which has been repaired.
+
+%% =====================================================================================
+\section{Reproducing the computations}\label{app:reproduce}
+%% =====================================================================================
+
+All paths are relative to the accompanying folder.
+
+\emph{The certificate for \cref{thm:main}.} In \code{certificate-14501/}:
+\begin{alltt}\footnotesize
+./run_certificate.sh
+\end{alltt}
+builds \code{src/rigx.c} with \code{cc -O2 -frounding-math -ffp-contract=off} (\code{-O0} under GNU \code{gcc}),
+runs \code{rigx \MzeroNum{} 1e9} with
+the environment of the certified run (the $\nKnotsMain$ knots in \code{KNOTS}, \code{PD=17 PSB=0 DSB=0}; the accuracy
+settings \code{EPS=1e-14 TINY=1e-30 HEFF=1e-16 TS=4194304 THM=1048576 TBUD=4194304}; the margins \code{MARGIN}$=2^{-20}$
+and \code{MARGINL}$=$\code{MARGINL2}$=2^{-13}$), and compares the result lines with \code{output/cert\_14501.txt}
+(line breaks added):
+\begin{alltt}\footnotesize
+m=14501 eta_up=0.999926855181 (A=0.234899856304 B=0.763569005991 C=0.001457990070)
+  f_up=9.65174e+09 crit_lo=1.57871e+10 SUCCESS(certified)
+CERT eta_up=0.99992685518076208 (0x1.fff669aac979p-1) T_up=705974.99523353134
+  mu_lo=7.3144819237924708e-05 f_up=9651742974.9486885 crit_lo=15787081835.245779
+  k=50847534 log_k_lo=17.744342183707648 loglog_k_lo=2.8760667148961203
+\end{alltt}
+It takes about $90$ seconds and $1.2$~GB. The cross-check of \cref{tab:xcheck-main} is run by
+\path{xcheck/tools/run_xcheck.sh} with the same environment (about $29$ minutes), and \path{validation/run_bf.py} runs
+the brute-force comparisons of \cref{sec:tests}.
+
+\emph{The certificate for \cref{thm:lean}.} In \code{src/}:
+\begin{alltt}\footnotesize
+cc -O2 -frounding-math -ffp-contract=off -o rigcert rigcert.c -lm   # GNU gcc: -O0
+K=50:0.07,80:0.1612,130:0.2191,220:0.2679,400:0.3198,800:0.345
+K=$K,2000:0.3762,8000:0.4031,50000:0.4092
+KNOTS=$K PSB=31 DSB=0.05 NOSTOP=1 \textbackslash
+  ./rigcert 16000 50 200000 2e8 47 16 4.5 1000000 20000 0 -1 0.1 0.44 0.5
+\end{alltt}
+The arguments are, in order: $m$; the prime $50$ from which the knot schedule applies; the largest prime $\PX$
+treated by the comparison bound; the largest prime $\Pmax$ treated explicitly; the largest prime $47$ allowed in
+$s_A$; the constants $16$ and $4.5$ of the enumeration cut-off $X_p$; the caps $10^6$ and $2\cdot10^4$ of the
+divisor-count tables; a verbosity flag; and an unused smooth schedule (ignored when \code{KNOTS} is set).
+\code{PSB} and \code{DSB} give $\delta_p=0.05$ for $31\le p<50$; \code{NOSTOP} only disables an early exit. The
+expected output (\code{logs/cert16k.txt}; line breaks added) is
+\begin{alltt}\footnotesize
+m=16000 eta_up=0.997384393974 (A=0.230571210247 B=0.760302397508 C=0.006510785610)
+  f_up=1.22745e+08 crit_lo=2.83863e+09 SUCCESS(certified)
+CERT eta_up=0.9973843939732947 (0x1.fea92ad34fe9cp-1) T_up=321051.36453405279
+  mu_lo=0.0026156060267052972 f_up=122744542.28049764 crit_lo=2838631802.0518227
+  k=11078937 log_k_lo=16.220556296052827 loglog_k_lo=2.7862793450197798
+CERT stats: max_enumerated=12114518 t_clamped_to_delta=0
+\end{alltt}
+With \code{DUMP=file} the program writes the certified per-prime costs for $p\le\PX$ (\path{logs/dump16k.txt}).
+The run takes about $2.5$ minutes on one core. The commands of the independent recomputation are listed at the end
+of \code{logs/xcheck\_final.md} (code in \code{tests/xcheck\_final/}); \code{tests/cert/run\_small.sh} runs the
+small-instance checks of \cref{sec:tests}, and the tests of the comparison theorem are the Python scripts in
+\code{tests/review/}.
+
+\emph{The results of \cref{sec:further}.} The scripts \path{squarefree/src/reproduce.sh} (about $30$ seconds) and
+\path{odd-moduli/reproduce_all.sh} (about $10$ minutes), and the drivers listed in \path{applications/PACKAGE.md},
+rerun the certificates of \cref{sec:squarefree,sec:odd,sec:rings}.
+
+\emph{This paper.} In \code{paper/}, \code{make\_figures.py} regenerates \code{fig/} and \code{gen/} from the
+certified outputs, and \code{tectonic main.tex} builds the paper.
+
+\needspace{11\baselineskip}
+\emph{Lean.} In \code{lean/}:
+\begin{alltt}\footnotesize
+lake exe cache get                                 # prebuilt Mathlib
+lake build MinModulus.Checker2Sound.Final14501     # Theorem \ref{thm:main} (native check: about 10 min)
+lake env lean MinModulus/Checker2Sound/Final14501Audit.lean   # axioms of the final theorems
+lake build                                         # Theorem \ref{thm:lean} (native check: about 50 s)
+lake build MinModulus.Squarefree.Main              # squarefree theorem
+lake build MinModulus.Odd.Final                    # Theorem \ref{thm:odd} (native checks: 80 s each)
+lake env lean MinModulus/CheckerSound/Audit.lean   # axioms of MinModulus.not_covers
+lake env lean MinModulus/Squarefree/Axioms.lean    # axioms of the squarefree theorem
+lake env lean MinModulus/Odd/FinalAudit.lean       # axioms of Theorem \ref{thm:odd}
+\end{alltt}

@@ -1,0 +1,295 @@
+%% =====================================================================================
+\section{The comparison theorem}\label{sec:comparison}
+%% =====================================================================================
+
+\subsection{Statement}\label{sec:comparison-statement}
+
+Throughout this section $X=X_1\times\dots\times X_n$ with $X_i=\Z/q_i^{e_i}\Z$, where $q_i\ge2$ and $e_i\ge0$ are
+integers; in our application the $q_i$ are distinct primes. A \emph{ball of depth $a$} in $X_i$
+($0\le a\le e_i$) is a set $\{y\in X_i: y\equiv c\pmod{q_i^{a}}\}$; it has $q_i^{e_i-a}$ elements. A
+\emph{cylinder} is a product $C=C_1\times\dots\times C_n$ of balls; we write $a_i(C)$ for the depth of $C_i$. When
+the $q_i$ are pairwise coprime, the Chinese remainder theorem identifies the cylinders with the residue classes
+$c+L\Z$, $L\mid\prod_iq_i^{e_i}$, and then $a_i(C)=v_{q_i}(L)$.
+
+\begin{definition}[the tilted law]\label{def:tilted}
+Let $q\ge2$ be an integer and $\nu\ge1$. A random variable $V$ with values in $\{0,1,2,\dots\}$ has the
+\emph{$(q,\nu)$-tilted law} if
+\[
+  \P(V\ge a)=\min\bigl(1,\nu q^{-a}\bigr)\qquad(a=0,1,2,\dots).
+\]
+If $\nu\le q$, this means $\P(V=0)=1-\nu/q$ and $\P(V=a)=\nu q^{-a}(1-1/q)$ for $a\ge1$. For $\nu=1$ it is the
+law of the $q$-adic valuation of a Haar-random $q$-adic integer.
+\end{definition}
+
+\begin{theorem}[comparison theorem]\label{thm:comparison}
+Let $\mu$ be a $(\nu_1,\dots,\nu_n)$-bounded probability measure on $X$ (\cref{def:bounded}), let $\cF$ be a finite
+family of cylinders with weights $w_C\ge0$, and let $U=\sum_{C\in\cF}w_C\one_C$. Let $V_1,\dots,V_n$ be
+independent, $V_i$ with the $(q_i,\nu_i)$-tilted law, and define the \emph{aligned count}
+\[
+  U^{\mathrm{al}}=\sum_{C\in\cF}w_C\prod_{i=1}^n\one\{V_i\ge a_i(C)\}.
+\]
+Then for every convex nondecreasing function $\varphi\colon[0,\infty)\to\R$,
+\[
+  \E_\mu\bigl[\varphi(U)\bigr]\le\E\bigl[\varphi(U^{\mathrm{al}})\bigr].
+\]
+\end{theorem}
+
+Recall that a random variable $A$ is dominated by $B$ in the \emph{increasing convex order} if
+$\E\varphi(A)\le\E\varphi(B)$ for all convex nondecreasing $\varphi$ for which the expectations exist.
+\Cref{thm:comparison} says that the law of $U$ under $\mu$ is dominated in this order by the law of
+$U^{\mathrm{al}}$. The name comes from the following description of $U^{\mathrm{al}}$. Translate every cylinder
+$C$ so that it contains $0$; the translate is $C^0=\{x:\ q_i^{a_i(C)}\mid x_i\ \text{for all } i\}$, and
+$\one_{C^0}(x)=\prod_i\one\{v_{q_i}(x_i)\ge a_i(C)\}$. Thus $U^{\mathrm{al}}$ is the value of the aligned
+configuration $\sum_Cw_C\one_{C^0}$ at a random point whose coordinates have independent valuations with the tilted
+laws. For $\nu_i=1$ this random point is uniform, and for $\nu_i>1$ it is tilted towards $0$, where the aligned
+cylinders overlap the most.
+
+We first prove the theorem for the hinge functions $\varphi(u)=(u-t)^+$, by induction over the coordinates
+(\cref{sec:onecoord,sec:proof}); the general case follows because the hinges generate the increasing convex order
+(\cref{lem:hinges}).
+
+\subsection{The one-coordinate lemma}\label{sec:onecoord}
+
+For an integer $N\ge1$ and a real $\nu\ge1$ define the \emph{greedy weights}
+\[
+  g_{\nu,N}(k)=\min\bigl(\nu,\max(0,N-\nu k)\bigr),\qquad k=0,1,\dots,N-1 .
+\]
+
+\begin{lemma}\label{lem:greedy}
+The weights $g=g_{\nu,N}$ are nonincreasing, lie in $[0,\nu]$, and satisfy $\sum_{k<M}g(k)=\min(\nu M,N)$ for
+$0\le M\le N$. In particular $\sum_{k<N}g(k)=N$. More precisely, with $J=\lfloor N/\nu\rfloor\le N$, we have
+$g(k)=\nu$ for $k<J$, $g(J)=N-\nu J\in[0,\nu)$ if $J<N$, and $g(k)=0$ for $J<k<N$.
+\end{lemma}
+
+\begin{proof}
+For $k<J$ we have $k\le N/\nu-1$, so $N-\nu k\ge\nu$. For $k>J$ we have $k\ge J+1>N/\nu$, so $N-\nu k<0$. This
+gives the explicit form, and the partial sums follow: they equal $\nu M$ for $M\le J$ and $\nu J+(N-\nu J)=N$ for
+$M>J$, while $\nu M\le N$ exactly when $M\le J$.
+\end{proof}
+
+\begin{lemma}[one coordinate]\label{lem:onecoord}
+Let $Y$ be a finite set with $N=|Y|$, let $\nu\ge1$, and let $\kappa\colon Y\to[0,\nu]$ satisfy
+$\sum_{y\in Y}\kappa(y)=N$. Let $(B_l)_{l\in L}$ be finitely many subsets of $Y$ with weights $w_l\ge0$, and put
+\[
+  F(y)=\sum_lw_l\one_{B_l}(y)\quad(y\in Y),\qquad G(k)=\sum_lw_l\one\{k<|B_l|\}\quad(0\le k<N).
+\]
+Then for every $t\in\R$,
+\[
+  \sum_{y\in Y}\kappa(y)\bigl(F(y)-t\bigr)^+\le\sum_{k=0}^{N-1}g_{\nu,N}(k)\bigl(G(k)-t\bigr)^+ .
+\]
+\end{lemma}
+
+\begin{proof}
+The proof has three steps.
+
+\emph{(a) Majorization.} For every $s\in\R$,
+\begin{equation}\label{eq:majorization}
+  \sum_{y\in Y}(F(y)-s)^+\le\sum_{k<N}(G(k)-s)^+ .
+\end{equation}
+Let $S=\{y:F(y)>s\}$ and $M=|S|$. Since $\sum_{k<M}\one\{k<|B_l|\}=\min(M,|B_l|)\ge|S\cap B_l|$,
+\begin{align*}
+  \sum_y(F(y)-s)^+&=\sum_{y\in S}(F(y)-s)=\sum_lw_l|S\cap B_l|-sM\\
+  &\le\sum_lw_l\min(M,|B_l|)-sM=\sum_{k<M}(G(k)-s),
+\end{align*}
+and the right-hand side is at most $\sum_{k<N}(G(k)-s)^+$.
+
+\emph{(b) Duality.} For every $\lambda\ge0$,
+\begin{equation}\label{eq:duality}
+  \sum_y\kappa(y)(F(y)-t)^+\le\lambda N+\nu\sum_y(F(y)-t-\lambda)^+ .
+\end{equation}
+Indeed $a^+\le\lambda+(a-\lambda)^+$ for every real $a$ and $\lambda\ge0$; multiply by $\kappa(y)\in[0,\nu]$, sum
+over $y$ and use $\sum_y\kappa(y)=N$.
+
+\emph{(c) Choice of $\lambda$.} Let $h_k=(G(k)-t)^+$. Since $G$ is nonincreasing, so is $h$. For $\lambda\ge0$
+we have $(G(k)-t-\lambda)^+=(h_k-\lambda)^+$. Let $J=\lfloor N/\nu\rfloor$ as in \cref{lem:greedy}. If $J=N$, then
+$\nu=1$ and $g\equiv1$; take $\lambda=0$ in \eqref{eq:duality} and apply \eqref{eq:majorization} with $s=t$. If
+$J<N$, take $\lambda=h_J$. By \eqref{eq:duality} and then \eqref{eq:majorization} with $s=t+\lambda$,
+\begin{align*}
+  \sum_y\kappa(y)(F(y)-t)^+&\le\lambda N+\nu\sum_{k<N}(h_k-\lambda)^+
+  =h_JN+\nu\sum_{k<J}(h_k-h_J)\\
+  &=(N-\nu J)h_J+\sum_{k<J}\nu h_k=\sum_{k<N}g(k)h_k,
+\end{align*}
+because $h_k\ge h_J$ for $k<J$ and $h_k\le h_J$ for $k\ge J$.
+\end{proof}
+
+\begin{remark}\label{rem:lp}
+The right-hand side of \cref{lem:onecoord} is the maximum of the linear functional
+$\kappa'\mapsto\sum_k\kappa'_kh_k$ over $\kappa'\in[0,\nu]^N$ with $\sum_k\kappa'_k=N$: since $h$ is nonincreasing,
+the greedy vector $g$ is optimal (the bathtub principle), and $\lambda=h_J$ is an optimal dual variable. The lemma
+thus combines two extremal facts: the worst density puts the maximal weight $\nu$ on the most covered points, and
+the worst arrangement of the sets $B_l$ nests them into initial segments of a single ordering of $Y$.
+\end{remark}
+
+\subsection{Proof of the comparison theorem}\label{sec:proof}
+
+We first prove a version for arbitrary product sets, in which only the sizes of the sets enter.
+
+\begin{proposition}[rectangle form]\label{prop:rectangles}
+Let $X=X_1\times\dots\times X_n$ be a product of finite nonempty sets, $N_i=|X_i|$, and let $\mu$ be a
+$(\nu_1,\dots,\nu_n)$-bounded probability measure on $X$. Let $(R_c)_{c\in I}$ be finitely many rectangles
+$R_c=R_{c,1}\times\dots\times R_{c,n}$ with $R_{c,i}\subseteq X_i$, with weights $w_c\ge0$, and let
+$U=\sum_cw_c\one_{R_c}$. Let $\bk_1,\dots,\bk_n$ be independent random variables with
+$\P(\bk_i=k)=g_{\nu_i,N_i}(k)/N_i$ for $0\le k<N_i$. Then for every $t\in\R$,
+\[
+  \E_\mu\bigl[(U-t)^+\bigr]\le\E\Bigl[\Bigl(\sum_cw_c\prod_{i=1}^n\one\{\bk_i<|R_{c,i}|\}-t\Bigr)^+\Bigr].
+\]
+\end{proposition}
+
+\begin{proof}
+Induction on $n$. For $n=0$ the space is a point and both sides equal $(\sum_cw_c-t)^+$. Let $n\ge1$, put
+$X'=X_1\times\dots\times X_{n-1}$ and write points of $X$ as $(x',y)$ with $y\in X_n$. By
+\cref{def:bounded}, $\mu(x',y)=\mu'(x')K_n(x',y)$, where $\mu'(x')=\prod_{j<n}K_j(x_{<j},x_j)$ is a
+$(\nu_1,\dots,\nu_{n-1})$-bounded probability measure on $X'$. Write $R_c=R'_c\times R_{c,n}$.
+
+Fix $x'\in X'$. As a function of $y$,
+$U(x',y)=\sum_c\bigl(w_c\one_{R'_c}(x')\bigr)\one_{R_{c,n}}(y)$ is a nonnegative combination of the sets
+$R_{c,n}\subseteq X_n$, and $\kappa=N_nK_n(x',\cdot)$ takes values in $[0,\nu_n]$ and sums to $N_n$.
+\Cref{lem:onecoord} gives
+\[
+  \sum_yK_n(x',y)\bigl(U(x',y)-t\bigr)^+\le\sum_k\P(\bk_n=k)\bigl(U^{(k)}(x')-t\bigr)^+,\qquad
+  U^{(k)}=\sum_c\bigl(w_c\one\{k<|R_{c,n}|\}\bigr)\one_{R'_c}.
+\]
+Multiply by $\mu'(x')$, sum over $x'$ and exchange the finite sums:
+\[
+  \E_\mu\bigl[(U-t)^+\bigr]\le\sum_k\P(\bk_n=k)\,\E_{\mu'}\bigl[(U^{(k)}-t)^+\bigr].
+\]
+For each $k$, $U^{(k)}$ is a nonnegative combination of rectangles in $X'$, so by the induction hypothesis
+$\E_{\mu'}[(U^{(k)}-t)^+]\le\E\bigl[\bigl(\sum_cw_c\one\{k<|R_{c,n}|\}\prod_{i<n}\one\{\bk_i<|R_{c,i}|\}-t\bigr)^+\bigr]$.
+Averaging over $k$ with the weights $\P(\bk_n=k)$, and using the independence of $\bk_n$ from
+$(\bk_i)_{i<n}$, gives the claim.
+\end{proof}
+
+\begin{lemma}[the tilted law]\label{lem:vlaw}
+Let $N=q^e$, $\nu\ge1$, and let $\bk$ have law $\P(\bk=k)=g_{\nu,N}(k)/N$. Define
+$V=\max\{a\in\{0,\dots,e\}:\bk<q^{e-a}\}$. Then $\{V\ge a\}=\{\bk<q^{e-a}\}$ and
+$\P(V\ge a)=\min(1,\nu q^{-a})$ for $0\le a\le e$. Consequently $V$ has the law of $\min(V^\infty,e)$, where
+$V^\infty$ has the $(q,\nu)$-tilted law, and $\one\{\bk<|B|\}=\one\{V\ge a\}$ for every ball $B$ of depth $a$.
+\end{lemma}
+
+\begin{proof}
+The events $E_a=\{\bk<q^{e-a}\}$ decrease in $a$ and $E_0$ is certain, so $V$ is well defined and
+$\{V\ge a\}=E_a$. By \cref{lem:greedy}, $\P(E_a)=\min(\nu q^{e-a},N)/N=\min(1,\nu q^{-a})$. The variables $V$ and
+$\min(V^\infty,e)$ take values in $\{0,\dots,e\}$ and have the same tails there, hence the same law. A ball of
+depth $a$ has $q^{e-a}$ elements.
+\end{proof}
+
+\begin{lemma}[hinges suffice]\label{lem:hinges}
+Let $A$ and $B$ be random variables that take finitely many values, all in $[0,\infty)$. If
+$\E(A-t)^+\le\E(B-t)^+$ for every $t\ge0$, then $\E\varphi(A)\le\E\varphi(B)$ for every convex nondecreasing
+$\varphi\colon[0,\infty)\to\R$.
+\end{lemma}
+
+\begin{proof}
+Let $0=s_0<s_1<\dots<s_r$ be the elements of $\{0\}\cup A(\Omega)\cup B(\Omega)$; if $r=0$ there is nothing to prove.
+Let $\sigma_0=0$ and $\sigma_j=(\varphi(s_j)-\varphi(s_{j-1}))/(s_j-s_{j-1})$ for $1\le j\le r$. Since $\varphi$ is
+nondecreasing and convex, $0\le\sigma_1\le\dots\le\sigma_r$. The function
+\[
+  \psi(u)=\varphi(0)+\sum_{j=1}^r(\sigma_j-\sigma_{j-1})(u-s_{j-1})^+
+\]
+has slope $\sigma_k$ on $[s_{k-1},s_k]$ and $\psi(0)=\varphi(0)$, so $\psi(s_j)=\varphi(s_j)$ for all $j$. Hence
+\begin{align*}
+  \E\varphi(A)=\E\psi(A)&=\varphi(0)+\sum_j(\sigma_j-\sigma_{j-1})\E(A-s_{j-1})^+\\
+  &\le\varphi(0)+\sum_j(\sigma_j-\sigma_{j-1})\E(B-s_{j-1})^+=\E\varphi(B),
+\end{align*}
+because every coefficient $\sigma_j-\sigma_{j-1}$ is nonnegative.
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:comparison}]
+Apply \cref{prop:rectangles} to the cylinders $R_C=C$. For each $i$ let $W_i=\max\{a\le e_i:\bk_i<q_i^{e_i-a}\}$ as in
+\cref{lem:vlaw}. Then $\one\{\bk_i<|C_i|\}=\one\{W_i\ge a_i(C)\}$, the $W_i$ are independent, and $W_i$ has the law
+of $\min(V_i,e_i)$. Hence the right-hand side of \cref{prop:rectangles} equals
+$\E\bigl[\bigl(\sum_Cw_C\prod_i\one\{\min(V_i,e_i)\ge a_i(C)\}-t\bigr)^+\bigr]$. Since $a_i(C)\le e_i$, we have
+$\one\{\min(V_i,e_i)\ge a_i(C)\}=\one\{V_i\ge a_i(C)\}$, and therefore $\E_\mu[(U-t)^+]\le\E[(U^{\mathrm{al}}-t)^+]$ for
+every $t\in\R$. Both $U$ and $U^{\mathrm{al}}$ take finitely many nonnegative values, and \cref{lem:hinges} completes
+the proof.
+\end{proof}
+
+\subsection{Sharpness}
+
+\begin{proposition}\label{prop:sharp}
+Suppose that every cylinder of $\cF$ contains $0$. Then there is a $(\nu_1,\dots,\nu_n)$-bounded measure $\mu$ for
+which equality holds in \cref{thm:comparison} for every $\varphi$.
+\end{proposition}
+
+\begin{proof}
+The balls of $X_i$ that contain $0$ are the sets $q_i^aX_i$, and they are nested. Hence there is an enumeration
+$\pi_i\colon\{0,\dots,N_i-1\}\to X_i$ such that $\pi_i(\{k:k<q_i^{e_i-a}\})=q_i^aX_i$ for every $a$: list $0$ first,
+then the elements of valuation $e_i-1$, then those of valuation $e_i-2$, and so on. Let
+$K_i(x_{<i},\pi_i(k))=g_{\nu_i,N_i}(k)/N_i$, independently of $x_{<i}$. Under the product measure $\mu$ the vector
+$(\pi_i^{-1}(x_i))_i$ has the law of $(\bk_i)_i$, and $\one_C(x)=\prod_i\one\{\pi_i^{-1}(x_i)<|C_i|\}$ for
+$C\in\cF$. By \cref{lem:vlaw}, $U$ has the law of $U^{\mathrm{al}}$.
+\end{proof}
+
+So the comparison theorem loses nothing by itself: the extremal measure puts the maximal density $\nu_i$ on the
+points of highest valuation, and the extremal configuration is the aligned one.
+
+\subsection{Rogers' theorem}\label{sec:rogers}
+
+\begin{corollary}[Rogers \cite{HalberstamRoth1966}; Simpson \cite{Simpson1986}]\label{cor:rogers}
+Let $d_1,\dots,d_k$ be positive integers, not necessarily distinct, and let $a_1,\dots,a_k\in\Z$. Then the density
+of $\bigcup_i(a_i+d_i\Z)$ is at least the density of $\bigcup_id_i\Z$. Equivalently, for fixed moduli the density
+of the integers that avoid all the progressions is largest when all the residues are $0$.
+\end{corollary}
+
+\begin{proof}
+Let $L=\lcm(d_1,\dots,d_k)=\prod_jq_j^{e_j}$ and $X=\prod_j\Z/q_j^{e_j}$, identified with $\Z_L$; the uniform measure
+$\mu$ is $(1,\dots,1)$-bounded, and each progression $a_i+d_i\Z$ is a cylinder $C_i$ of depths $v_{q_j}(d_i)$. Let
+$U=\sum_i\one_{C_i}$. Since $U$ is integer-valued, the indicator of the union is $\min(1,U)=U-(U-1)^+$, so the
+density of the union is $\E_\mu U-\E_\mu(U-1)^+=\sum_i1/d_i-\E_\mu(U-1)^+$. By \cref{thm:comparison} with
+$\varphi(u)=(u-1)^+$, $\E_\mu(U-1)^+\le\E(U^{\mathrm{al}}-1)^+$. For $\nu_j=1$ the tilted variables are the
+valuations of a uniformly random point, capped at $e_j$ as in \cref{lem:vlaw}, so $U^{\mathrm{al}}$ has the law of
+$\sum_i\one_{d_i\Z}$ under the uniform measure, whose union has density $\sum_i1/d_i-\E(U^{\mathrm{al}}-1)^+$.
+\end{proof}
+
+The direction deserves emphasis. The expected coverage $\E_\mu U=\sum_i1/d_i$ does not depend on the residues;
+alignment \emph{maximizes} the overlap $\E(U-1)^+$ and therefore \emph{minimizes} the covered density
+$\E\min(1,U)$. For the uniform measure the means of $U$ and $U^{\mathrm{al}}$ agree, so \cref{thm:comparison}
+is then a statement about the convex order. Rogers' theorem appears in print in Halberstam and
+Roth~\cite[pp.~242--244]{HalberstamRoth1966}, credited to C.~A.~Rogers; it was proved independently by
+Simpson~\cite[Lemma~2.3]{Simpson1986} and revisited by Tao~\cite{TaoRogers2026}, whose compression argument, first
+in one cyclic $q$-group and then over products, has the same structure as \cref{lem:onecoord} followed by the
+induction of \cref{prop:rectangles}. Lewis~\cite{Lewis1996}, Filaseta et al.~\cite{FFKPY2007} and Filaseta and
+Kalogirou~\cite{FilasetaKalogirou2026} use it. Sun~\cite[Corollary~1.2]{Sun2006} proves the analogue
+$|\bigcup_ia_iG_i|\ge|\bigcup_iG_i|$ for normal Hall subgroups $G_i$ of a finite group, and notes that Tomkinson
+showed it fails for the Klein four-group. Kucheriaviy~\cite{Kucheriaviy2026} shows that the analogue of Rogers' theorem
+holds in a finite commutative ring exactly when the ring is a product of local rings with linearly ordered ideals. Burchard and
+Hajaiej~\cite{BurchardHajaiej2006} prove continuous rearrangement inequalities for supermodular integrands.
+
+\subsection{Relation to the lemmas of BBMST}\label{sec:bbmst-lemmas}
+
+Let $\mu=P_{i-1}$, which is $(\nu_1,\dots,\nu_{i-1})$-bounded by \cref{lem:kernel}.
+
+\emph{A single progression.} For a cylinder $C$ and $\varphi(u)=u$, \cref{thm:comparison} gives
+$\mu(C)\le\prod_j\min(1,\nu_jp_j^{-a_j(C)})$. For the progression $b+d\Z$ with $d\mid Q_{i-1}$ this is at most
+$\nu(d)/d$, which is \cite[Lemma~3.4]{BBMST} for the measures $P_{i-1}$.
+
+\emph{Moments.} Take $U=U_i$ from \cref{lem:unionbound} and $\varphi(u)=u^k$. Expanding the $k$-th power,
+\[
+  \E\bigl[(U_i^{\mathrm{al}})^k\bigr]=\sum_{d_1,\dots,d_k\in N_i}p_i^{-(j_{d_1}+\dots+j_{d_k})}
+  \prod_{j<i}\min\bigl(1,\nu_jp_j^{-v_{p_j}(L)}\bigr)
+  \le\sum_{d_1,\dots,d_k\in N_i}p_i^{-(j_{d_1}+\dots+j_{d_k})}\frac{\nu(L)}{L},
+\]
+where $L=\lcm(m'_{d_1},\dots,m'_{d_k})$, since $\max_rv_{p_j}(m'_{d_r})=v_{p_j}(L)$. Together with
+$\alpha_i\le U_i$ this is the moment bound \eqref{eq:bbmst36} of \cite[Lemma~3.6]{BBMST}. Thus BBMST's lemma is the
+monomial case of \cref{thm:comparison}; the theorem makes every convex nondecreasing functional available, and
+the proof above does not need to compute intersections of progressions.
+
+\subsection{Remarks}\label{sec:comparison-remarks}
+
+\begin{enumerate}[label=(\arabic*)]
+\item Only the sizes of the sets $R_{c,i}$ enter \cref{prop:rectangles}. The balls matter only because nested sets
+  are initial segments of one ordering, which is what makes the description by the tilted law possible
+  (\cref{lem:vlaw}).
+\item The kernel structure refers to a fixed order of the coordinates, and the induction peels off the last
+  coordinate. For the distorted measures the order is that of the primes $p_1<p_2<\dots$, and
+  \cref{lem:kernel} provides exactly this structure.
+\item \Cref{lem:onecoord} can also be proved for general convex nondecreasing $\varphi$ by rearrangement: if
+  $f^*$ denotes the decreasing rearrangement of $f$ on $[0,1)$, the Hardy--Littlewood inequality, the bathtub
+  principle and the Tomi\'c--Weyl majorization inequality give
+  $\int\kappa\,\varphi(F)\le\int_0^1\kappa^*\varphi(F^*)\le\nu\int_0^{1/\nu}\varphi(F^*)\le\nu\int_0^{1/\nu}\varphi(G)$,
+  where $G$ is the aligned profile. The argument via duality given above is elementary, and it is the one that
+  has been formalized (\cref{sec:lean}).
+\item If every cylinder has depth at most $1$ in every coordinate, as for squarefree moduli, the tilted variables
+  enter only through the Bernoulli variables $\one\{V_i\ge1\}$ and the one-coordinate lemma has a three-line proof
+  by convexity (\cref{sec:squarefree}).
+\end{enumerate}

@@ -1,2 +1,8 @@
 .lake/
 *.olean
+paper/*.log
+paper/*.aux
+paper/*.xdv
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk

@@ -1,0 +1,454 @@
+%% =====================================================================================
+\section{Further results}\label{sec:further}
+%% =====================================================================================
+The comparison theorem applies wherever the distortion method does. We describe three applications: squarefree
+moduli, odd moduli, and other rings. Full details are in separate notes accompanying this paper (the folders
+\path{squarefree/}, \path{odd-moduli/} and \path{applications/}).
+
+\subsection{Squarefree moduli}\label{sec:squarefree}
+
+\emph{Status: new; verified.} The result below is certified by an outward-rounded computation, confirmed by an
+independent exact recomputation, and formally verified in Lean~4 with Mathlib.
+
+\begin{theorem}\label{thm:squarefree}
+No finite set of congruences with distinct squarefree moduli, all at least $10$, covers $\Z$. Consequently every
+covering system with distinct squarefree moduli has least modulus at most $7$.
+\end{theorem}
+
+Since $8$ and $9$ are not squarefree, moduli greater than $7$ are at least $10$, which gives the second statement.
+The previous bound was $118$, due to Cummings, Filaseta and Trifonov \cite{CFT2025}. In the other direction,
+Erd\H{o}s's covering
+\[
+  0(2),\ 0(3),\ 0(5),\ 1(6),\ 0(7),\ 1(10),\ 1(14),\ 2(15),\ 2(21),\ 23(30),\ 4(35),\ 5(42),\ 59(70),\ 104(105)
+\]
+has distinct squarefree moduli and least modulus $2$ (one checks directly that it covers $\Z/210$). Whether a
+covering with distinct squarefree moduli and least modulus $3$ exists is a question of Selfridge that remains open
+(see \cite[F13]{GuyUPINT} and \cite[Problem~4]{DaltonTrifonov2022}). Hence the largest least modulus of such a
+covering lies in $\{2,3,5,6,7\}$, and by \cref{thm:sf7type} below in $\{2,3,5,6\}$.
+% CHECK: edition and section of Guy's "Unsolved Problems in Number Theory" (cited as F13 in DELIV/squarefree/README.md).
+
+\emph{Method.} For squarefree moduli every coordinate is $X_i=\Z/p_i$, every cylinder has depth $0$ or $1$ in each
+coordinate, and the tilted variables enter only through the Bernoulli variables $\one\{V_i\ge1\}$, with parameter
+$\rho_i=\min(1,\nu_i/p_i)$. The one-coordinate lemma then has a three-line proof.
+
+\begin{lemma}\label{lem:bernoulli}
+Let $K\ge0$ on $\Z/q$ with $\sum_yK(y)=1$ and $K\le\nu/q$, let $c\ge0$, let $w\ge0$ on $\Z/q$ with
+$\sum_yw(y)=S$, and let $\varphi$ be convex and nondecreasing. Then, with $\rho=\min(1,\nu/q)$,
+\[
+  \sum_yK(y)\,\varphi\bigl(c+w(y)\bigr)\le(1-\rho)\,\varphi(c)+\rho\,\varphi(c+S).
+\]
+\end{lemma}
+
+\begin{proof}
+We may assume $S>0$. By convexity, $\varphi(c+w(y))\le(1-w(y)/S)\varphi(c)+(w(y)/S)\varphi(c+S)$. Moreover
+$\sum_yK(y)w(y)/S\le\rho$, since $w(y)/S\le1$ and $K\le\nu/q$, and $\varphi(c+S)-\varphi(c)\ge0$.
+\end{proof}
+
+At level $p$ the moduli are $d=m'p$ with $m'$ squarefree and $(p-1)$-smooth, so the weights are $1/p$ rather than
+the geometric weights of \cref{def:smooth}. The union bound, \cref{lem:pointwise}, the comparison theorem and the
+enlargement give, for $0\le t\le\delta_p$,
+\[
+  P_p(B_p)\le\frac{\E\bigl[(N(s)/p-t)^+\bigr]}{1-t},\qquad N(s)=\#\{m'\mid s:\ m'p\ge m\},
+\]
+where $s=\prod_{q<p}q^{\epsilon_q}$ with independent $\epsilon_q\sim\mathrm{Bernoulli}(\rho_q)$. Let $L=\lceil m/p\rceil$
+and let $s_A$ be the part of $s$ supported on the primes below $\min(p,L)$. A divisor with a prime factor at least $L$
+is itself at least $L$, so
+\[
+  N(s)=2^{\omega(s)}-\#\{d\mid s_A:\ d<L\}
+\]
+exactly. The factor $s_A$ takes at most $2^{\pi(\sqrt m)}$ values and is enumerated, and $\omega(s/s_A)$ has a
+Poisson-binomial law computed by dynamic programming, so the level bound is evaluated exactly, without the
+decomposition of \cref{lem:AB}. Since $t\mapsto\E[(N/p-t)^+]/(1-t)$ is monotone between consecutive atoms of the law
+of $N/p$, the best $t\in[0,\delta_p]$ is $0$, an atom below $\delta_p$, or $\delta_p$; the schedule takes each
+$\delta_p$ either at an atom $2^k/p$ or equal to $\frac12$. Levels at which no modulus $\ge m$ can occur ($p\prod_{q<p}q<m$; for $m=10$ these are $p=2,3$)
+are empty and are given $\nu_p=1$.
+
+\emph{Certificate.} With $m=10$ and $X=\Pmax$, the certified total is $\eta_{\mathrm{up}}=\etaSqf$. The primes $5$
+and $7$ contribute $0.208333$, the primes $11\le p<10^3$ contribute $0.745813$, those in $[10^3,10^4)$ contribute
+$0.036571$, and the primes above $10^4$ less than $0.0067$. The tail passes the criterion of \cite[Theorem~6.1]{BBMST}:
+$k=\kPrimes$, $\mu_k\ge0.0026745$ and $f_k\le5.1411\cdot10^8\le2.8386\cdot10^9$.
+% RESOLVED 2026-09-27 (source files corrected): SQUAREFREE_PROOF.md states f_k <= 5.141e8, but the certificate line (certs/cert_m10_2e8.txt) has
+%        f_gen_up = 514103195.66 > 5.141e8; the text uses 5.1411e8.
+An independent program recomputed every level bound (as an exact rational for $p\le400$, as a $50$-digit interval for $p\le10^6$, and with its own
+bound above) and found no violation; the exact sum of the level bounds up to $10^6$ is $0.997269049318$. Exact
+simulations of the measures of BBMST on $509$ concrete squarefree systems found no violation of any step of the
+chain, and the level bound is attained at some levels. As a further check, on the schedule of \cite{CFT2025} at
+$m=119$ the same program reproduces the moment-bound totals of \cite{CFT2025}, while the hinge bound gives
+$0.4567$ instead of $0.9990$. The same method proves the statement for moduli at least $11$ with a margin of about
+$7\%$ ($\eta_{\mathrm{up}}=0.929935461718$).
+
+\emph{Formal proof.} The Lean theorem \code{MinModulus.Squarefree.not\_covers} states \cref{thm:squarefree}
+(moduli \code{d i} injective, squarefree and at least $10$), and it is complete. Besides \code{propext},
+\code{Classical.choice} and \code{Quot.sound}, its only axiom is the auxiliary axiom introduced by
+\code{native\_decide} for a numerical checker written in core Lean, which works in fixed point with scale $2^{128}$,
+rounds upward, and certifies a total of $\etaSqfLean<1$. The link from the checker's output to the mathematical
+statement is proved in Lean, and the mathematics reuses the formalized comparison theorem, distortion and tail
+modules of \cref{sec:lean}.
+
+\emph{Beyond $7$.} Least modulus at most $6$ (that is, $m=7$) is not proved: the per-level method gives
+$\eta\approx1.091$, and the refinements we tried reach about $1.086$ (numerical). Splitting $\Z$ by the residue
+modulo $30$ does much better numerically: if every class that the moduli dividing $30$ leave uncovered uses its own
+schedule, chosen after the system is known, the worst systems we found by adversarial search still leave a class
+with bound about $0.60$ for $m=7$, $0.66$--$0.68$ for $m=6$ and $0.81$--$0.84$ for $m=5$. We cannot yet certify
+this. Weights and schedules fixed in advance cannot beat the joint bound, since an adversary that aligns every level
+at an independent, uniformly random class forces the joint value; so a proof must branch on the system itself, as in
+\cref{thm:sf23} below. The following partial results are rigorous (certified with outward rounding and recomputed in
+exact rational arithmetic). For $(m,P_0)\in\{(3,19),(5,59),(6,113),(7,569)\}$, no system of congruences with
+distinct, squarefree, $P_0$-smooth moduli, all at least $m$, covers $\Z$; here no tail argument is needed, and the
+certified totals are $0.991683501684$, $0.988892548054$, $0.994080928716$ and $0.999184263699$. Combined with a
+prime-replacement lemma (Simpson and Zeilberger \cite{SimpsonZeilberger1991}; Dalton and Trifonov
+\cite[Lemma~13]{DaltonTrifonov2022}), which allows the largest prime $q\ge m$ used by a distinct squarefree covering
+with moduli $\ge m$ to be replaced by any unused prime in $[m,q)$, this shows that such a covering uses at least
+$102$, $28$ and $16$ primes $p\ge m$ for $m=7,6,5$ (for $m=7$ there is in fact no such covering, by
+\cref{thm:sf7type} below, and for $m=6$ \cref{thm:sf6smooth} below raises $28$ to $45$). For $m=3$ the per-level method stops at $P_0=19$ (it gives about
+$1.057$ at $P_0=23$), but a finer argument goes further.
+
+\begin{theorem}\label{thm:sf23}
+No finite set of congruences with distinct squarefree moduli, all at least $3$ and all $23$-smooth, covers $\Z$.
+Consequently a covering system with distinct squarefree moduli and least modulus $3$ uses at least $9$ odd primes,
+and at least $10$ primes in all; in particular the least common multiple of its moduli is at least
+$2\cdot3\cdot5\cdots29=6469693230$.
+\end{theorem}
+
+\emph{Status: new; certified with outward rounding, rechecked by an independent program in exact rational
+arithmetic (refereed by an AI agent), and formally verified in Lean~4 (\cref{sec:lean}).} We may assume every admissible modulus is used. The moduli $3,5,6,10,15,30$
+leave an uncovered set $U\subseteq\Z/30$, and an enumeration of all $405000$ choices of their residues shows that $U$
+contains the image, under the coordinatewise symmetries of $\Z/2\times\Z/3\times\Z/5$, of one of $7$
+inclusion-minimal sets. For $z\in U$, a congruence modulo $ef$ with $e\mid30$ and $f>1$ meets the class
+$z+30\Z$ exactly when $z$ lies in its class modulo $e$, and then acts on it as a progression modulo $f$; so the
+class $z$ must be covered by a family of progressions in which each $f$ occurs at most $8$ times. The per-level
+bound holds verbatim for families with repetitions (the comparison theorem does not use distinctness), and it shows
+that the class is not covered when its bound is below $1$. A certificate consists of weights on pairs (class,
+schedule) such that the weighted sum of the class bounds is below the total weight for every admissible pattern of
+multiplicities; at each level and each $s$ the maximum over patterns is bounded by convexity, and a branch-and-bound
+over the multiplicity patterns of the moduli $7e$ and $11e$, up to symmetry, closes all $7$ cases with $1905$
+certificate records. The largest certified value is $0.999927670599$; a symmetry exchanging the coordinates modulo
+$2$ and $3$ maps this case onto another one whose certificate gives $0.998954874683$. The corollary follows from the
+prime-replacement lemma applied to odd primes and from \cite[Theorem~1.1]{BBMST2021ES}, which forces an even
+modulus. The certificates, both checkers and a proof note are in \path{squarefree/beyond/smooth23/}.
+Extending the branch-and-bound to the prime $29$ gives more.
+
+\begin{theorem}\label{thm:sf29}
+No finite set of congruences with distinct squarefree moduli, all at least $3$ and all $29$-smooth, covers $\Z$.
+Consequently a covering system with distinct squarefree moduli and least modulus $3$ uses at least $10$ odd primes,
+and at least $11$ primes in all; in particular the least common multiple of its moduli is at least
+$2\cdot3\cdot5\cdots31=200560490130$.
+\end{theorem}
+
+\emph{Status: new; certified with outward rounding and recomputed by an independent program in exact rational
+arithmetic (refereed by an AI agent); not formalized.} The proof is that of \cref{thm:sf23} with the levels up to
+$29$. Five of the seven cases close with certificates of $311$ to $4050$ records. The other two, which are related by
+a symmetry, need a much larger tree, which branches at every level up to $29$ and uses a richer menu of schedules,
+with $187895$ records; its bounds were checked in parts, and the completeness of its tree on the whole certificate.
+The largest certified value is $0.999999933977$. The corollary follows as before. The certificates, the checker and
+a proof note are in \path{squarefree/beyond/smooth29/}.
+
+For $m=7$ the same method, combined with a case split on the moduli $10$, $15$ and $30$, settles the question
+completely, without any smoothness assumption.
+
+\begin{theorem}\label{thm:sf7type}
+No finite set of congruences with distinct squarefree moduli, all at least $7$, covers $\Z$. Consequently every
+covering system with distinct squarefree moduli has least modulus at most $6$.
+\end{theorem}
+
+\emph{Status: new; certified with outward rounding and recomputed in full by an independent program in exact
+rational arithmetic (refereed by an AI agent); formally verified in Lean~4 (\cref{sec:lean}).} The second statement
+follows from the first, since
+a covering with least modulus at least $7$ has all its moduli at least $7$. For a system with moduli at least $7$ let
+$C\subseteq\Z/30$ be the set of classes covered by its congruences with moduli $10$, $15$ and $30$; it is contained
+in a set $A\cup B\cup\{c\}$ with $A$ a class modulo $10$, $B$ a class modulo $15$ and $c$ a class modulo $30$. Adding
+congruences preserves covering, so we may assume that all three moduli occur. Up to the coordinatewise symmetries of
+$\Z/2\times\Z/3\times\Z/5$ the set $C$ is then contained in one of $9$ sets $C_1,\dots,C_9$ (an exhaustive check of
+all $4500$ residue choices, and of the $956$ choices with some of the three moduli absent). The orbit of $C_9$ ($30$
+sets of size $5$: a class modulo $5$ minus one point) covers the case $A\equiv B\pmod 5$; the orbits of
+$C_1,\dots,C_8$ consist of sets of size $6$ with $A\not\equiv B\pmod 5$ and are distinguished by the class of $c$:
+$C_6,C_7,C_8$ ($240$, $240$ and $720$ sets) have $c\not\equiv A\pmod 2$, $c\not\equiv B\pmod 3$ and $c\equiv A$,
+$c\equiv B$ or neither modulo $5$; $C_1,C_3,C_5$ ($360$, $720$ and $360$ sets) have $c$ congruent to neither $A$ nor
+$B$ modulo $5$, agreeing with $A$ modulo $2$ and with $B$ modulo $3$, with $A$ only, or with $B$ only; $C_4$ ($120$
+sets) has $c\equiv A\pmod 5$ and $c\equiv B\pmod 3$; and $C_2$ ($240$ sets) has $c\equiv B\pmod 5$ and $c\equiv
+A\pmod 2$. For each type the complement $U$ of $C_i$ in $\Z/30$ is alive, and each class $z\in U$ must be covered by
+progressions modulo $f$ with multiplicities at most $8$, as before. The proof branches on the residues modulo $e$ of
+the moduli $7e$ for $e\in\{2,3,5,6,10,15\}$ (up to the symmetries of $U$), maximizes exactly over the residue of
+$210$, and bounds the levels $p\ge11$ with a common schedule $\delta_p=t_p=2^{k_p}/p$. For these levels the vertex
+step of \cref{thm:sf23} is sharpened by applying Jensen's inequality across the groups of moduli with the same part
+below $11$ and letting one profile serve all $s$ with the same part above $7$; with thresholds that are powers of
+$2$ the resulting bound is a finite combination of exact profile maxima with universal coefficients, computed with
+upward rounding. For type~$9$ ($25$ alive classes, $1480$ cells) this closes every cell, with largest value
+$0.990728458807$; the coefficients are computed up to $2^{27}$ and the primes beyond are handled with
+$\delta_p=\frac12$ and \cref{prop:tail}. For types $6$, $7$ and $8$ ($24$ alive classes) the cells whose bound is
+not below $1$ ($1079$, $1356$ and $2110$ of $7272$, $7992$ and $16416$) are refined further by branching on the
+residues modulo $e$ of the moduli $11e$, over all $27000$ choices: the free residue of $330$ and the modulus $77$
+are treated either exactly or by a Jensen split, the levels $p\ge13$ by the same grouping over the parts in
+$\{1,7,11,77\}$, and the primes beyond $2^{31}$ by the Cauchy--Schwarz inequality and \cref{prop:tail}. This
+gives $15788$, $25842$ and $24929$ refined cells, all with certified value below $1$; the largest values are
+$0.999791591902$, $0.999754401235$ and $0.999797679840$ before refinement and $0.999978915577$, $0.999979279565$
+and $0.999979476961$ after. The other five types ($24$ alive classes) need one more level, and their schedule
+differs from the common one at nine primes ($k_p$ is lowered by one at $37,71,137,257,263,491,499,947,953$; any
+schedule with $2^{k_p}<p$ is admissible). Some cells refined at level $11$ are refined once more by branching on
+the residues modulo $e$ of the moduli $13e$; there the moduli $91e$, $143e$ and $1001e$ are treated by a Jensen
+split with two or four equal weights, the levels $p\ge17$ by the grouping over the eight parts dividing
+$7\cdot11\cdot13$, and the primes beyond $2^{31}$ as before. At the hardest level-$13$ cells the Jensen split is
+replaced by the exact expectation over $s\subseteq\{7,11\}$ at $p=13$, whose four terms are maximized separately
+(the last one by the vertex step), the level-$13$ analogue of the exact treatment of $77$ at level $11$. In one cell
+of type~$2$, $8$ level-$13$ cells remain above $1$ even so; each is split further according to the class modulo
+$30$ of the congruence with modulus $390$, which may be taken to lie in $U$ (if the modulus is absent or its class is
+dead, every one of the resulting bounds applies, since all terms are nondecreasing), and this gives $192$ cells, each
+with its own weights. The numbers are as follows.
+\begin{center}
+\begin{tabular}{@{}rrrrrrl@{}}
+\toprule
+type & cells & refined & level-$11$ cells & level-$13$ cells & exact & largest value \\
+\midrule
+$3$ & $16416$ & $5396$ & $49365$ & $552$ & $0$ & $0.999979939775$ \\
+$5$ & $8512$ & $2802$ & $60649$ & $1949$ & $0$ & $0.999979897908$ \\
+$1$ & $8512$ & $4526$ & $574608$ & $61939$ & $307$ & $0.999979960$ \\
+$4$ & $3744$ & $1345$ & $76189$ & $34010$ & $22$ & $0.999994881$ \\
+$2$ & $7992$ & $3164$ & $270963$ & $92797$ & $2629$ & $0.999979968$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Here \emph{refined} is the number of cells refined at level $11$, the next two columns are the numbers of cells
+produced at levels $11$ and $13$, and \emph{exact} is the number of level-$13$ cells that use the exact expectation
+(for type~$2$ including the $192$ split cells); the largest values before refinement are between $0.99975$ and
+$0.99978$. Every certificate was checked by the verifier with
+upward rounding and recomputed in full by the referee in exact rational arithmetic; the certificates of types $1$ and
+$2$ ($215$ and $127$ MB) were checked in pieces whose level-$7$ coverages are disjoint and together cover all
+$27000$ choices. The certificates, verifiers and proof notes are in \path{squarefree/beyond/m7-type9/},
+\path{squarefree/beyond/m7-types678/}, \path{squarefree/beyond/m7-type3/}, \path{squarefree/beyond/m7-type5/},
+\path{squarefree/beyond/m7-type1/}, \path{squarefree/beyond/m7-type4/} and \path{squarefree/beyond/m7-type2/}.
+
+Before the last types were settled, truncating the tail gave the weaker statement that no covering with distinct
+squarefree moduli, all at least $7$ and all $1200$-smooth, exists, so that such a covering would involve at least
+$194$ primes $p\ge7$ (with largest certified value $0.999638381232$); this is now subsumed by
+\cref{thm:sf7type}, and its certificates remain in \path{squarefree/beyond/m7-smooth1200/}.
+
+For moduli at least $6$ the block moduli are $6$, $10$, $15$ and $30$, and the same method gives a smooth analogue
+of \cref{thm:sf7type}.
+
+\begin{theorem}\label{thm:sf6smooth}
+No finite set of congruences with distinct squarefree moduli, all at least $6$ and all $211$-smooth, covers $\Z$.
+Consequently a covering system with distinct squarefree moduli, all at least $6$, uses at least $45$ primes $p\ge7$.
+\end{theorem}
+
+\emph{Status: new; certified with outward rounding and recomputed in full by an independent program in exact
+rational arithmetic (refereed by an AI agent); not formalized.} The moduli $6$, $10$, $15$ and $30$ leave an uncovered
+set $U\subseteq\Z/30$, and an exhaustive check of all $27000$ residue choices shows that, up to the coordinatewise
+symmetries of $\Z/2\times\Z/3\times\Z/5$, $U$ contains one of $26$ inclusion-minimal sets, of sizes $19$, $20$ and
+$21$ (so does every choice in which some of the four moduli are absent). Each type is closed by the cells of the
+proof of \cref{thm:sf7type}, where now no level above $211$ occurs: the tail sums stop at $211$ and there is no
+remainder term. Level-$7$ cells close $249834$ of the $251652$ cells, with largest value $0.999589971059$; the other
+$1818$ are refined at level $11$ ($6291$ cells, $45$ of them with the exact treatment of $77$), and $16$ of these once
+more at level $13$, with largest value $0.999978742660$. The corollary follows from the prime-replacement lemma, since
+there are $44$ primes in $[7,211]$. Level-$7$ cells alone reach $167$ (so at least $37$ primes), and without a
+smoothness assumption the hardest cell of every type stays above $1.1$ numerically even after all the refinements used
+for \cref{thm:sf7type}; whether every covering with distinct squarefree moduli has least modulus at most $5$ remains
+open. The certificates, the verifier with its smooth mode and the referee's report are in
+\path{squarefree/beyond/m6-smooth211/}, and those for $167$ with level-$7$ cells alone in
+\path{squarefree/beyond/m6-smooth167/}.
+
+\subsection{Odd moduli and divisibility conditions}\label{sec:odd}
+
+\emph{Status: new; certified with outward rounding and refereed by AI agents (two referee passes).
+\Cref{thm:odd,thm:odd2} are also formally verified in Lean~4.}
+
+In this subsection all moduli are greater than $1$. Erd\H{o}s and Selfridge asked whether a covering system with
+distinct odd moduli exists; the question is open.
+
+\begin{theorem}\label{thm:odd}
+Let $\cA$ be a finite family of congruences with distinct moduli, all greater than $1$, that covers $\Z$.
+\begin{enumerate}[label=(\Alph*)]
+\item Some modulus is divisible by $2$ or by $9$.
+\item Some modulus is divisible by $2$ or by $5$.
+\item If all the moduli are odd, then some modulus is less than $11$.
+\end{enumerate}
+\end{theorem}
+
+BBMST proved that $2\mid Q$, or $9\mid Q$, or $15\mid Q$, where $Q$ is the lcm of the moduli
+\cite[Theorem~1.4]{BBMST}, and remark that in the last case they are unable to show that a single modulus is divisible
+by $15$. Part~(A) shows that the third alternative is not needed. Part~(B) is the analogue, with $5$ in place of $3$,
+of the theorem of Hough and Nielsen \cite{HoughNielsen2019} that some modulus is divisible by $2$ or $3$ (reproved in
+\cite[Theorem~7.1]{BBMST}). By part~(C), a covering with distinct odd moduli, if one exists, has a modulus in
+$\{3,5,7,9\}$.
+
+\emph{Formal proof.} All three parts of \cref{thm:odd} are formally verified in Lean~4 with Mathlib, as the theorems
+\code{MinModulus.Odd.not\_covers\_A}, \code{\_B} and \code{\_C} (\path{lean/MinModulus/Odd/}). Each depends only on
+\code{propext}, \code{Classical.choice}, \code{Quot.sound} and one \code{native\_decide} evaluation of a numerical
+checker written in Lean. The proof has three parts.
+\begin{itemize}
+\item A generic chain for moduli restricted to an admissible set. It uses the level bound with the enlargement to
+  the admissible moduli, and the sharpened tail of \cref{prop:tailtwo}.
+\item Per-case identities for the weights, which exclude $2$ (and $5$ in case~(B)) and cap $3$ at exponent $1$ in
+  case~(A).
+\item A checker that evaluates the resulting $\tau$-split bounds for the primes up to $2\cdot10^8$.
+\end{itemize}
+Its certified totals, tail included, are at most $0.998406$ for~(A), $0.784852$ for~(B) and $0.989342$ for~(C). Each native
+evaluation takes about $80$ seconds.
+
+\begin{theorem}\label{thm:odd2}
+For each of the following six properties, every covering system with distinct moduli, all greater than $1$, has a
+modulus with that property.
+\begin{itemize}
+\item[\textup{B(7)}] Divisible by $2$, or by $5r$ for some prime $r\ge7$.
+\item[\textup{HN(13)}] Divisible by $2$, or by $3r$ for some prime $r\ge13$.
+\item[\textup{T3(7)}] Even, equal to $3$, or divisible by $7$.
+\item[\textup{T3(11)}] Even, equal to $3$, or divisible by $11$.
+\item[\textup{HN$^*$(47)}] Even, equal to $3$, or divisible by $3r$ for some prime $r\ge47$.
+\item[\textup{B$^*$(29)}] Even, equal to $3$, or divisible by $5r$ for some prime $r\ge29$.
+\end{itemize}
+\end{theorem}
+
+In a covering with distinct odd moduli, HN(13) says that $3$ must occur together with a prime at least $13$ in some
+modulus, which strengthens the theorem of Hough and Nielsen, and B(7) says that the moduli divisible by $5$ cannot all
+be of the form $3^a5^b$. The statements HN($P$) for all primes $P$ together are equivalent to the conjecture that no
+covering with distinct odd moduli exists, since such a covering violates HN($P$) for every $P$ larger than all its prime
+factors; the same holds for the analogous statements B($P$). The last four statements of \cref{thm:odd2} show how much
+of the difficulty comes from the modulus $3$ itself: once it is excluded, the method reaches much further.
+
+\emph{Method.} In each case the hypothesis removes primes or prime powers from the construction of
+\cref{sec:loss}. When no modulus is even, $2\nmid Q$, so the prime $2$ is neither a level nor a factor of $s$.
+\begin{itemize}
+\item (A) ($m=3$). Since $9\nmid Q$, the exponent of $3$ is capped at $1$: the variable $v_3$ takes the value $1$
+  with probability $\nu_3/3$ and $0$ otherwise, level $3$ has $\alpha_3\le1/3$, and $U_p(s)=\tau(s)/(p-1)$ for the
+  other levels. The tail uses \cite[Theorem~6.1]{BBMST} with $i_0=2$ and $\kappa=1+\nu_3$, as in the proof of
+  \cite[Theorem~1.4]{BBMST}.
+\item (B) ($m=3$). The prime $5$ is removed from the levels and from $s$; the tail uses $i_0=1$ and $\kappa=1$, as in
+  all remaining cases.
+\item (C) ($m=11$). Here $U_3=1/18$, $U_5(s)=(\tau(s)-\frac45)/4$, $U_7(s)=(\tau(s)-\frac67)/6$ and
+  $U_p(s)=\tau(s)/(p-1)$ for $p\ge11$.
+\item HN($P$) and B($P$). Let $q=3$ or $q=5$, respectively. The admissible moduli are the odd $d>1$ such that not both
+  $q\mid d$ and the largest prime factor of $d$ is at least $P$. At the levels $p<P$ every odd modulus is admissible;
+  at the levels $p\ge P$ no admissible modulus is divisible by $q$, so the prime $q$ is removed from $s$. The total is
+  the sum of two certified runs, combined in exact rational arithmetic.
+\item T3($p$), HN$^*$($P$) and B$^*$($P$). Among odd moduli greater than $1$, being different from $3$ is the same as
+  being at least $5$, so these statements are proved with $m=5$ and the prime $2$ absent; in T3($p$) the prime $p$ is
+  also removed, and HN$^*$($P$) and B$^*$($P$) are split into two runs as above.
+\end{itemize}
+
+\emph{Certificates.} The certified checker of \cref{sec:computation}, modified for these constraints, gives the totals
+of \cref{tab:odd}; the tail criterion of \cite[Theorem~6.1]{BBMST}, with $X=\Pmax$ and $k=\kPrimes$, passes in each
+case, against the threshold $(\log k+\log\log k-3)^2k\ge\critLo$. For (A)--(C), an independent referee reproduced the
+certificates bit for bit and recomputed them with separately written code, obtaining totals of $0.998502$, $0.758524$
+and $0.990483$ (for (A) with the fractional-moment bounds starting at $2\cdot10^6$). A second referee pass checked every
+reduction of \cref{thm:odd2}, reproduced all $18$ runs and $5$ combined certificates bit for bit and re-certified every
+statement with a newly written evaluator (for example $0.998865$ for HN$^*$(47) and $0.997346$ for B$^*$(29)). Neither
+pass found errors. Exact simulations of the measures of BBMST on small systems with adversarial residues found no
+violation of the certified level bounds.
+
+\begin{table}[ht]
+\centering
+\caption{The certificates for \cref{thm:odd,thm:odd2}: the certified total $\eta_{\mathrm{up}}$ and an upper bound for
+the quantity $f_k$ of the tail criterion, which must be at most $2.8386\cdot10^9$
+(\code{odd-moduli/certs/}).}
+\label{tab:odd}
+\small
+\begin{tabular}{@{}llr@{\qquad}llr@{}}
+\toprule
+statement & $\eta_{\mathrm{up}}$ & $f_k\le$ & statement & $\eta_{\mathrm{up}}$ & $f_k\le$\\
+\midrule
+(A) & $\etaOddA$ & $1.0648\cdot10^8$ & T3(7) & $0.730213115725$ & $7.389\cdot10^5$\\
+(B) & $\etaOddB$ & $6.609\cdot10^5$ & T3(11) & $0.981833231256$ & $1.2194\cdot10^7$\\
+(C) & $\etaOddC$ & $1.8175\cdot10^7$ & HN$^*$(47) & $0.998966442526$ & $2.8474\cdot10^8$\\
+B(7) & $0.925376005735$ & $5.877\cdot10^6$ & B$^*$(29) & $0.997505909477$ & $1.1330\cdot10^8$\\
+HN(13) & $0.947722737316$ & $6.609\cdot10^6$ & & &\\
+\bottomrule
+\end{tabular}
+\end{table}
+% Sources: DELIV/odd-moduli/README.md, ODD_MODULI_NOTE.md (sections 0, 4, 9, 10), certs/final_*.txt and
+%          certs/fix_{A,B,C}.txt.  f_k: A 106471010.75, B 660860.43, C 18174206.68, B(7) 5.876307e6 (delta_5 = 1/2),
+%          HN(13) 6.608906e6, T3(7) 474995 * 14/9 <= 738882, T3(11) 9237311 * 1.32 <= 1.2194e7, HN*(47) 2.847320e8,
+%          B*(29) 1.132955e8.
+% RESOLVED 2026-09-27 (source files corrected): ODD_MODULI_NOTE.md section 12 says that the six statements of Theorem 8.4 "have not had an independent referee
+%        pass"; odd-moduli/README.md (later) reports a second referee pass with no errors.  The text follows the README.
+
+\emph{Limits} (numerical; a total above $1$ means only that this method does not prove the statement). The method does
+not prove that some modulus is divisible by $2$ or by $p$ for any prime $p\ge7$: the best totals found are $1.12$,
+$1.55$ and $1.65$ for $p=7$, $11$ and $13$, and about $1.69$ for odd moduli without further restriction, that is, for
+the Erd\H{o}s--Selfridge problem itself. Nor does it prove that a covering with distinct odd moduli has a modulus
+below $9$ (best total $1.10$), so the threshold $11$ in (C) is the smallest that it certifies. The families stop
+at HN(17) ($1.028$), HN$^*$(53) ($1.017$) and B$^*$(31) ($1.02$).
+% RESOLVED 2026-09-27 (source files corrected): ODD_MODULI_NOTE.md section 10 lists 1.80 for p = 17 (B's schedule, fast setting), above the value 1.686 for
+%        odd moduli without restriction, although the note and the README say that the values increase towards
+%        about 1.69; the 1.80 is presumably an artifact of the unoptimized schedule.  The text omits p = 17.
+
+\subsection{Function fields and imaginary quadratic fields}\label{sec:rings}
+
+\emph{Status: new; certified with outward rounding and refereed by an AI agent with independently written checkers;
+not formalized.} Details are in the notes \path{applications/fq_note.md} and \path{applications/nf_note.md}.
+
+Let $R$ be a Dedekind domain in which every nonzero ideal $I$ has finite norm $N(I)=|R/I|$. A covering system of $R$
+is a finite family of classes $a_i+I_i$, with nonzero proper ideals $I_i$, whose union is $R$; its moduli are distinct
+if the ideals $I_i$ are pairwise distinct, and its multiplicity is the largest number of times an ideal occurs. For
+$R=\mathbb{F}_q[x]$ the moduli are identified with monic polynomials of positive degree.
+
+\begin{theorem}\label{thm:rings}
+Let $q$ be a prime power.
+\begin{enumerate}[label=(\alph*)]
+\item If $q\ge11$, no covering system of $\mathbb{F}_q[x]$ has distinct moduli.
+\item Every covering system of $\mathbb{F}_q[x]$ with distinct moduli has a modulus of degree $1$ if $q\in\{8,9\}$,
+  and a modulus of degree at most $2$ if $q=7$.
+\item Let $K$ be a global function field of genus $0$ with constant field $\mathbb{F}_q$, let $S$ be a nonempty finite
+  set of places of $K$, and let $O_S$ be the ring of $S$-integers. If $q\ge13$, no covering system of $O_S$ has
+  distinct moduli.
+\item If $q\ge29$, no covering system of $\mathbb{F}_q[x]$ has multiplicity at most $2$.
+\end{enumerate}
+Moreover, every covering system of $\Z[i]$ with distinct moduli has a modulus of norm at most $1109$, and every
+covering system of $\Z[\omega]$, $\omega=(1+\sqrt{-3})/2$, with distinct moduli has a modulus of norm at most $99$.
+\end{theorem}
+
+Part (a) was known for $q\ge759$ \cite{LWWY2025} and then for $q>73$ \cite[Theorem~1.3]{BWang2026}; we certify every
+prime power $11\le q\le79$. Part (b) answers, for $q=7,8,9$, the analogue of the minimum modulus problem raised by Li,
+Wang, Wang and Yi \cite{LWWY2024}; together with (a) it gives an explicit bound for the least degree of a modulus for
+every $q\ge7$. (For $q=2$ a covering with distinct moduli exists, for example $0\bmod x$, $0\bmod x+1$,
+$1\bmod x^2+x$; the cases $q\in\{3,4,5\}$ are open.) Part (c) follows from \cite[Theorem~1.1]{BWang2026}, with genus
+$0$ and multiplicity $1$, for $q\ge83$; we certify every prime power $13\le q\le81$. For part (d),
+\cite[Theorem~1.1]{BWang2026} with multiplicity $2$ requires $q>4\cdot82.26=329.04$, that is, $q\ge331$; we certify all
+$68$ prime powers $29\le q\le317$, with two independent checkers, and there is no prime power between $317$ and $331$.
+For the last statement, Li, Wang and Yi \cite{LiWangYi2026} proved that such a bound exists for every number field,
+with a constant that is not explicit; as far as we know, these are the first explicit minimum-norm bounds for distinct
+covering systems of a number field other than $\mathbb{Q}$.
+
+\emph{Why the method transfers.} The arguments of \cref{sec:distortion,sec:comparison,sec:loss} use only the
+following structure.
+\begin{enumerate}[label=(\arabic*)]
+\item \emph{Order and CRT.} Fix a total order on the nonzero prime ideals compatible with the norm (for function fields,
+  with the degree), with ties broken arbitrarily but once and for all. If $Q=\bigcap_iI_i=\prod_j\mathfrak p_j^{\gamma_j}$,
+  then $R/Q\cong\prod_jR/\mathfrak p_j^{\gamma_j}$, and every class $a+I$ with $I\mid Q$ is a product of balls
+  $a+\mathfrak p_j^{v}$; a ball of depth $v$ in $R/\mathfrak p^{\gamma}$ has $N(\mathfrak p)^{\gamma-v}$ elements.
+  The distortion method runs level by level along this order, and \cref{lem:F1,lem:F2,lem:F3,prop:F4,lem:kernel}
+  hold with the same proofs.
+\item \emph{Comparison.} \Cref{thm:comparison} holds verbatim with $X_i=R/\mathfrak p_i^{e_i}$ and $q_i=N(\mathfrak p_i)$:
+  \cref{prop:rectangles} uses only the sizes of the sets, and \cref{lem:vlaw} only the sizes of the balls. (For the
+  uniform measure, compare Kucheriaviy's analogue of Rogers' theorem in commutative rings \cite{Kucheriaviy2026}.)
+\item \emph{The level bound.} At the level of $\mathfrak p$, a class of $B_{\mathfrak p}$ has modulus
+  $\mathfrak g\mathfrak p^r$ with $r\ge1$ and $\mathfrak g$ composed of earlier primes, and the pair $(\mathfrak g,r)$
+  determines the modulus by unique factorization. So \cref{lem:enlargement} holds, with a factor $\sigma$ for
+  multiplicity $\sigma$, and the level bound is $\E[(U^{\mathrm{al}}-t)^+]/(1-t)$ with
+  $U^{\mathrm{al}}=\sigma\sum_{\mathfrak g\mid\mathfrak s}w(\mathfrak g)$, where $\mathfrak s$ is a random ideal
+  composed of the earlier primes with independent tilted exponents, $\P(v_{\mathfrak q}\ge a)=\min(1,\nu_{\mathfrak q}
+  N(\mathfrak q)^{-a})$, and $w(\mathfrak g)=\sum N(\mathfrak p)^{-r}$ over the admissible $r\ge1$.
+\item \emph{Ties.} Prime ideals of equal norm are distinct coordinates, distinct levels and distinct divisors; the
+  order only decides at which level a class is counted, and the schedule depends only on the position in the order.
+\item \emph{Dominance.} The level bound is nondecreasing in the set of earlier primes, and the schedule is fixed in
+  advance, so the sum of the level bounds over all prime ideals of $R$ bounds the losses of every system. The
+  checkers use the exact number of monic irreducible polynomials of each degree for $\mathbb{F}_q[x]$, the bound
+  $\lfloor(q^n+1)/n\rfloor$ for the number of places of degree $n$ of a function field of genus $0$, and the lists of
+  prime ideals of $\Z[i]$ and $\Z[\omega]$.
+\item \emph{Tails.} For function fields, the degrees beyond the explicitly treated range are handled by
+  second-moment bounds summed over all primes of each degree, with a geometric remainder. For $\Z[i]$ and
+  $\Z[\omega]$, the prime ideals of norm above $X$ get $\delta=\frac12$, and an explicit estimate based on bounds of
+  Rosser and Schoenfeld \cite{RosserSchoenfeld1962} for sums over primes replaces \cite[Theorem~6.1]{BBMST}.
+\end{enumerate}
+
+\emph{Certificates.} The checkers \path{applications/fqcert.c} and \path{applications/nfcert.c}, which follow the
+rounding conventions of \cref{sec:rounding} (the second is derived from \code{rigcert.c}), certify the following
+totals (rounded up): in (a), from $0.88877$ for $q=11$ down to $0.03433$ for $q=79$; in (b), $0.98782$ for $q=8$ and
+$0.82650$ for $q=9$ (minimum degree $2$), and $0.73051$ for $q=7$ (minimum degree $3$); in (c), from $0.94213$ for $q=13$
+down to $0.03918$ for $q=81$; in (d), from $0.99973$ for $q=29$ down to $0.02476$ for $q=317$; and for $\Z[i]$ and
+$\Z[\omega]$, with minimum norms $1110$ and $100$, the sum $\eta_{\mathrm{up}}+\text{tail}$ is $0.994103491030+0.002750290372$ for $\Z[i]$
+($X=2\cdot10^7$) and $0.998222202602+0.000610531031$ for $\Z[\omega]$ ($X=10^8$). The referee confirmed all five claims
+with its own checkers: for (d) its $68$ totals agree with ours to within $2.6\cdot10^{-5}$, and for $\Z[i]$ and
+$\Z[\omega]$ it obtained $0.993695$ and $0.997984$ and recomputed the tails in $60$-digit arithmetic. Brute-force and exact-rational checks at the
+dominant levels agree as well. The method fails (numerically) for $q=7$ with minimum degree $2$ (total $1.21$) and for
+$q=5$ with minimum degree $3$ ($1.45$); for $\Z[i]$ at minimum norm $1100$ and for $\Z[\omega]$ at $90$ the certified
+totals are $1.0011$ and $1.0364$.
+% Sources: DELIV/applications/PACKAGE.md, fq_note.md, nf_note.md and expected/claim_{A..E}.txt.

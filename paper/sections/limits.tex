@@ -1,0 +1,162 @@
+%% =====================================================================================
+\section{Limits of the method}\label{sec:limits}
+%% =====================================================================================
+
+The proof bounds the true loss $P_i(B_i)$ by a chain of steps: the union bound $\alpha_i\le\min(1,U_i)$ in the fibre
+(\cref{lem:unionbound}); the pointwise hinge step, which discards the cap $\alpha_i\le1$ (\cref{lem:pointwise});
+the comparison theorem, which aligns the progressions and tilts the measure (\cref{thm:comparison}); the enlargement
+to all admissible moduli (\cref{lem:enlargement}); and the union bound over the levels in \cref{prop:F4}. On top of
+this comes the slack of the numerical evaluation. In this section we discuss how much each step loses. Statements
+labelled Proposition are proved. Statements labelled Observation are numerical findings from floating-point
+experiments (Monte Carlo sampling at $m=16{,}000$, and exact computations and adversarial searches on small
+analogues, and computations of the exact level bounds near $m=14{,}500$); they are not proofs and are not used
+anywhere in the proofs of \cref{thm:main,thm:lean}.
+
+\subsection{Steps that are sharp}
+
+\emph{Alignment and tilt.} By \cref{prop:sharp}, \cref{thm:comparison} is attained by aligned cylinders and a
+suitable $\nu$-bounded measure, so no better inequality holds for the whole class of $\nu$-bounded product measures.
+
+\emph{Enlargement.} \Cref{lem:enlargement} loses nothing for a family that contains all admissible moduli
+$m'p^j\ge m$ with $m'\mid Q_{i-1}$, up to the truncation of the exponents, which disappears as the exponents
+$\gamma_j$ grow. Such families can be used at all levels at once, since moduli with different largest prime factors
+are automatically distinct.
+
+\emph{The redistribution rule.} By \cref{rem:rule-optimal}, given $P_{i-1}$ the rule \eqref{eq:rule} minimizes the
+loss at level $i$ among all rules that preserve the marginal and multiply masses by at most $\nu_i$.
+
+\emph{The tilt in practice.} \Cref{prop:sharp} uses a measure that is chosen freely, whereas $P_{i-1}$ is produced
+by the rule \eqref{eq:rule}. The following observation shows that the tilt is nevertheless essentially attained.
+
+\begin{observation}[the tilt is realized by nested shells]\label{obs:tilt}
+Consider configurations of \emph{nested shells}, in which the progressions of every level are aligned at a common
+centre, so that points that are heavily covered at one level are heavily covered at every smaller level as well. In
+such a configuration the fibres of rich points receive, at each earlier level, the tilt
+$\min(\nu_q,1/(1-\alpha_q))$ of \eqref{eq:rule}. Monte Carlo sampling ($10^6$ importance-sampled paths) at
+$m=16{,}000$ with the final schedule, for $p\le2\cdot10^4$, gives the following totals of the per-level bound
+$\E[(U_p-\delta_p)^+]/(1-\delta_p)$: $0.970$ with the full tilt $\nu_q$ (the bound used in the proof, whose exact value
+is $0.9703$), $0.767$ without tilt ($\nu_q=1$), and $0.953$ with the tilt that nested shells realize. So the tilt
+accounts for about $0.20$ of the budget, most of it at $200\le p<8{,}000$, and all but about $0.017$ of it is realized
+by an actual configuration.
+\end{observation}
+% Source of the Observations: SCRATCH/agents/r9-tightness/FINDINGS.txt (sections 2, 3, 6 and the summary; the
+% per-range Monte Carlo table there gives full tilt / no tilt / capped totals 0.97012 / 0.76699 / 0.75264 for
+% p <= 2e4), SCRATCH/agents/r8-global-accounting/results.txt.  All numerical, floating point.
+
+\subsection{The cap cannot be used by convex functionals}
+
+The pointwise step replaces $(\min(1,U)-\delta)^+$ by the hinge $(U-t)^+$, which grows beyond $U=1$. The next
+proposition shows that no convex functional can do better, so that the comparison theorem cannot exploit the cap
+$\alpha\le1$.
+
+\begin{proposition}\label{prop:cap}
+Let $0<\delta<1$ and $f_\delta(u)=(\min(1,u)-\delta)^+/(1-\delta)$ for $u\ge0$. Let $\varphi\colon[0,\infty)\to\R$ be
+convex with $\varphi\ge f_\delta$. Then for every random variable $W\ge0$ with $\E W<\infty$,
+\[
+  \E\varphi(W)\ge\min\Bigl(1,\ \min_{0\le t\le\delta}\frac{\E(W-t)^+}{1-t}\Bigr).
+\]
+\end{proposition}
+
+\begin{proof}
+Replacing $\varphi$ by its lower semicontinuous regularization, which is still convex, still majorizes the
+continuous function $f_\delta$ and is not larger than $\varphi$, we may assume that $\varphi$ is continuous. Let
+$\sigma^*=1/(1-\delta)$, the slope of $f_\delta$ on $[\delta,1]$, and let $\varphi'_-(1)$ be the left derivative at $1$.
+
+\emph{Case $\varphi'_-(1)\le\sigma^*$.} Put $\sigma=\varphi'_-(1)$; it is a subgradient at the interior point $1$, so
+$\varphi(u)\ge\varphi(1)+\sigma(u-1)\ge1+\sigma(u-1)$ for all $u\ge0$, because $\varphi(1)\ge f_\delta(1)=1$. Also
+$\varphi\ge0$. If $\sigma\le0$, then $\varphi\ge1$ on $[0,1]$, and $\varphi\ge f_\delta=1$ on $[1,\infty)$, so
+$\E\varphi(W)\ge1$. If $0<\sigma\le\sigma^*$, put $t=1-1/\sigma\le\delta$; then
+$\varphi(u)\ge\max(0,\sigma(u-t))=\max(0,(u-t)/(1-t))$. For $t\ge0$ this gives $\E\varphi(W)\ge\E(W-t)^+/(1-t)$.
+For $t<0$ it gives $\E\varphi(W)\ge(\E W-t)/(1-t)$, a convex combination of $\E W$ and $1$, which is at least
+$\min(1,\E W)$, the bound for $t=0$.
+
+\emph{Case $\varphi'_-(1)>\sigma^*$.} The continuous convex function $\psi(u)=\varphi(u)-\sigma^*u$ attains its
+minimum over $[0,1]$ at some $u^*<1$, because $\psi'_-(1)>0$. It is then a global minimum on $[0,\infty)$: if
+$\psi(v)<\psi(u^*)$ for some $v>1$, convexity would give $\psi(w)<\psi(u^*)$ for $w\in(u^*,1]$. Hence
+$\varphi(u)\ge\varphi(u^*)+\sigma^*(u-u^*)$ for all $u\ge0$. Since
+$\varphi(u^*)\ge f_\delta(u^*)\ge(u^*-\delta)/(1-\delta)$, this gives $\varphi(u)\ge(u-\delta)/(1-\delta)$, and together
+with $\varphi\ge0$, $\varphi(u)\ge(u-\delta)^+/(1-\delta)$. So $\E\varphi(W)\ge\E(W-\delta)^+/(1-\delta)$.
+\end{proof}
+
+Applied to $W=U^{\mathrm{al}}$, \cref{prop:cap} says that the bound of \cref{thm:perprime}, minimized over $t$ and
+capped at $1$, is the best that \cref{thm:comparison} can give for the loss. The cap does matter at the aligned
+configuration: there the excess $\E[(U-1)^+]/(1-\delta)$ charged beyond the cap amounts to $0.217$ (numerical),
+about $22\%$ of the budget for $p\le2\cdot10^4$, and between $20\%$ and $26\%$ of the budget of each range of primes.
+An adversary, however, can spread the progressions apart.
+
+\begin{observation}[spreading]\label{obs:spread}
+In exact computations on small analogues (moduli built from the primes up to $7$ or up to $13$, with the worst
+$\nu$-bounded measure and adversarial residues found by simulated annealing), spreading the progressions recovers
+most of the gap between the capped aligned value and the per-level bound: between $59\%$ and $100\%$, depending on
+the instance. At $m=16{,}000$, the explicit spreadings we tried recover at most about $15\%$ of the cap excess at the
+prime $101$. Whether the true per-level worst case at this scale is much below the bound of \cref{thm:perprime} is
+open.
+\end{observation}
+
+\subsection{Cross-level accounting}
+
+The union bound over the levels in \cref{prop:F4} is not an identity, and its slack has a simple exact description.
+
+\begin{proposition}\label{prop:live}
+Call $x\in\Z_{Q_{i-1}}$ \emph{alive} if $x\notin\bigcup_{j<i}B_j$. Then
+\[
+  P_n\Bigl(\bigcup_{i=1}^nB_i\Bigr)=\sum_{i=1}^n\frac{\E_{P_{i-1}}\bigl[(\alpha_i-\delta_i)^+\,\one\{x\text{ alive}\}\bigr]}{1-\delta_i}.
+\]
+\end{proposition}
+
+\begin{proof}
+The union is the disjoint union of the sets $B_i\setminus\bigcup_{j<i}B_j$, which are $Q_i$-measurable, so by
+\cref{lem:F1} its $P_n$-measure is $\sum_iP_i(B_i\setminus\bigcup_{j<i}B_j)$. The set $\bigcup_{j<i}B_j$ is
+$Q_{i-1}$-measurable, so each fibre $F(x)$ either lies inside it or is disjoint from it. Hence
+$P_i(B_i\setminus\bigcup_{j<i}B_j)=\sum_{x\text{ alive}}P_i(F(x)\cap B_i)$, and the computation in the proof of
+\cref{lem:F3} finishes the proof.
+\end{proof}
+
+Thus $\sum_iP_i(B_i)$ also charges the losses on fibres that are already covered at an earlier level. In the nested
+shells of \cref{obs:tilt} this happens systematically: the same rich points are charged at every level.
+
+\begin{observation}[double counting]\label{obs:double}
+On two small exact analogues (moduli dividing $2^43^25\cdot7$ and $2^53^35\cdot7$, with schedules optimized for the
+bound of \cref{thm:perprime}), the per-level bounds sum to $1.0241$ and $0.9938$; simulated annealing finds systems
+with $\sum_iP_i(B_i)=0.9934$ and $0.9511$, so the per-level chain loses only $0.031$ and $0.043$. Simulated annealing aimed
+directly at $P_n(\bigcup_iB_i)$ finds at most $0.907$ and $0.886$: the double counting, about $0.07$ to $0.09$ of the budget, exceeds the
+whole per-level slack. At $m=16{,}000$, in a Monte Carlo model of nested shells, the configuration that attains the
+per-level bounds simultaneously (sum of capped losses about $0.74$ for $p\le2\cdot10^4$) newly covers only
+$0.10$--$0.16$ of the mass. We did not obtain a rigorous improvement of the certified total from this observation.
+\end{observation}
+
+\subsection{The slack of the evaluation and the reach of the method}\label{sec:reach}
+
+For the certificate of \cref{thm:lean} the evaluation itself is lossy. At $m=\MzeroLean$, with the schedule of that
+certificate, the exact values of the level bounds (computed with \code{rigx.c}, without margins) total $0.982431$ over
+the primes up to $\Pmax$, against the certified $\etaCertTwelve$. About $0.0097$ of the difference comes from
+$50\le p<200$, where the decomposition of \cref{lem:AB} is inexact once $N_1>53$, and about $0.0053$ from $p>\PX$,
+where the fractional-moment bounds are about six times the exact values. The exact evaluation of
+\cref{sec:SBH,sec:tausplit,sec:lost} removes this slack. The following observation, from computations of the exact
+level bounds without the safety margins and with heuristically optimized schedules, describes the reach of the
+per-level method.
+
+\begin{observation}[the frontier]\label{obs:frontier}
+With the exact evaluation and the schedule of \cref{thm:lean}, the total crosses $1$ near $m=14{,}780$. With the
+$\nKnotsMain$-knot schedule of \cref{thm:main} and $P_{\max}=10^9$, the total is $0.9999918$ at $m=14{,}500$ and
+$1.0000041$ at $m=14{,}499$. One damped per-prime Newton step on the schedule (a schedule with $3{,}241$ knots)
+gives $0.99996996$ at $m=14{,}498$ and $1.00002227$ at $m=14{,}495$. A total below $1$ is not
+yet a proof: at $P_{\max}=10^9$ the test of \cref{prop:bbmst61} needs
+$1-\eta\ge T_X/(\log k+\log\log k-3)^2k\approx4.5\cdot10^{-5}$, which is why $m=14{,}498$ to $14{,}500$ are not
+certified. We estimate the frontier of the per-level method at $m^*\approx14{,}496\pm3$. Near $m=14{,}500$ the total is
+a step function of $m$ that increases on average by about $0.015$ for each decrease of $1{,}000$ in $m$, and about
+$\shareBelowTwoK\%$ of the budget is spent at the primes below $2{,}000$, where the level bound is now evaluated
+exactly.
+\end{observation}
+
+A sharper evaluation of the same level bounds can therefore gain only a few units in $m$. Going substantially
+further requires changing the method itself: a different rule for redistributing the removed mass, an accounting
+across levels that exploits \cref{prop:live} (for instance a comparison theorem for the sub-stochastic kernels
+$K_j\one\{\text{alive}\}$), or a non-convex treatment of the cap.
+% Sources: the final report of SCRATCH/agents/r7-method-limit (frontier, 0.982431, 0.0097, 0.0053, 14,780, slope)
+%          and certificate-14501/README.md (frontier data); share of p < 2000 from certificate-14501/output/dump.
+% CHECK: sources disagree on the sensitivity of eta to m.  SCRATCH/agents/CONTEXT.md and r9-tightness/FINDINGS.txt
+%        give "about 0.0085 per 1000" near m = 16,000; the r7 report measures about 0.015 per 1000 near m = 14,500
+%        and says that 0.0085 does not hold there (r8-global-accounting/results.txt also gave about 0.015).
+%        The text follows the r7 report.  (DELIV/README.md, "Limits of the approach", now also gives the limit
+%        m ~ 14,500 and the frontier m* ~ 14,496, as here.)
