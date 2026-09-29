@@ -277,13 +277,11 @@ unit in the last place. The last digits of the output would then change, but the
 since any schedule is admissible and the checkers use their own values consistently.
 
 \subsection{Formal verification}\label{sec:lean}
-% Status (2026-09-28): complete for thm:main, thm:lean, thm:squarefree, thm:sf23, thm:sf7type, thm:odd, thm:odd2;
-% source DELIV/lean/README.md (coordinator's axiom audits).
+% Status: complete for thm:main and thm:lean.
 
 \Cref{thm:main,thm:lean} have been formally verified in Lean~4 (v4.34.1) with Mathlib, each modulo one
-\code{native\_decide} evaluation. The development is in the folder \path{lean/} of the accompanying files, and
-\path{lean/README.md} describes the build and the audit. The root theorems, in
-\path{lean/MinModulus/Checker2Sound/Final14501.lean} and \path{lean/MinModulus/Main/Main.lean}, are
+\code{native\_decide} evaluation. The development accompanies this paper, and its \path{README.md} describes the build and the audit. The root
+theorems, in \path{MinModulus/Checker2Sound/Final14501.lean} and \path{MinModulus/Main/Main.lean}, are
 \begin{alltt}\small
 theorem MinModulus.Checker2Sound.not_covers_14501 \{\(\iota\) : Type*\} [Fintype \(\iota\)]
     (d : \(\iota\) \(\to\) \(\mathbb{N}\)) (a : \(\iota\) \(\to\) \(\mathbb{Z}\)) (hd : Function.Injective d)
@@ -335,10 +333,9 @@ The soundness theorem \code{E.run2\_sound} holds for all parameters of the check
 conditions. A certificate for another $m$, or another schedule, therefore needs only a new \code{native\_decide}
 evaluation.
 
-\emph{Structure of the first formalization.} The whole development has $255$ files and about $52{,}700$ lines,
-counting the formalizations of \cref{thm:main,thm:lean,thm:squarefree,thm:sf23,thm:sf7type,thm:odd,thm:odd2} but not
-the $194$ generated modules that embed and check the certificate data of \cref{thm:sf7type}. Of these, $64$ files and
-about $18{,}400$ lines belong to the first formalization. \Cref{tab:lean} lists the modules and their correspondence with this paper. The first formalization
+\emph{Structure of the first formalization.} The whole development has $95$ files and about $28{,}000$ lines,
+counting the formalizations of \cref{thm:main,thm:lean}. Of these, $50$ files and about $16{,}400$ lines belong to the
+first formalization. \Cref{tab:lean} lists the modules and their correspondence with this paper. The first formalization
 follows the paper, with two differences: it uses the
 comparison theorem only for the hinge functions, since the other bounds are obtained from the hinge with
 $t=\delta_p$ by pointwise inequalities on the aligned side, and it treats the primes above $X=\Pmax$ by
@@ -355,42 +352,14 @@ so that the total with the tail term $\frac{100}{189}T/X=\tailLean$ is $\totalLe
 (\code{CheckerSound}) shows that the checker's loops and arrays bound the true per-prime losses (invariants of the
 dynamic programs, semantics of the enumeration, the blocks) and assembles them into the certificate
 \code{Cert \MzeroLeanNum{} (2*10\^{}8) \(\delta\) c T} consumed by \code{MinModulus.Main.not\_covers\_of\_cert}, whose
-conditions correspond to those of \cref{thm:criterion} with $t=\delta_p$. The squarefree theorem of
-\cref{sec:squarefree} is formalized in the same way, with its own checker. \Cref{thm:sf23} is formalized as
-\code{MinModulus.SliceCert.not\_covers\_sf3\_23smooth}, an instance of a general theorem
-\code{not\_covers\_of\_slices} for certificates of the kind described in \cref{sec:squarefree} (any start moduli and
-residual primes), which uses only the three standard axioms; the certificate itself is checked by one
-\code{native\_decide} evaluation (\code{check23\_eq\_true}, about $70$ seconds).
-
-\emph{The formalization of \cref{thm:sf7type}.} It is the theorem
-\code{MinModulus.SquarefreeM7.not\_covers} in the module \code{SquarefreeM7}; its hypotheses are those of
-\code{MinModulus.not\_covers} above, together with \code{Squarefree (d i)} and $7\le{}$\code{d i}. It has four parts, which interact only through propositions fixed in advance.
-\begin{itemize}
-\item The reduction to the nine types, the symmetries and the classes modulo $30$ (\code{Reduction}), checked
-  entirely by the kernel.
-\item The per-level bound for families with repetitions at every level, with the tail of \cref{thm:sf7type}: the
-  levels $7$, $11$ and $13$ with the Jensen splits and the exact terms (including the split by the class of the
-  modulus $390$), the grouped bound with power-of-two thresholds for the other levels up to $2^{31}$, and
-  \cref{prop:tail} beyond (\code{Bound}).
-\item The tail coefficients: a sieve up to $2^{31}$ and the Poisson--binomial recursions with upward rounding, with a
-  proof that they bound the true sums, run in $16$ chunks for each of the two schedules (\code{Coef}).
-\item A checker in core Lean with exact integer arithmetic, about $1.6$ times slower than the C verifier, with its
-  soundness proof, and the nine certificates, converted to an exact format and embedded as data ($446$~MB in $83$
-  chunks; \code{Check}, \code{Data}, \code{Cert}).
-\end{itemize}
-\code{\#print axioms} lists \code{propext}, \code{Classical.choice}, \code{Quot.sound} and $124$ auxiliary axioms of
-\code{native\_decide}: $83$ for the certificate chunks, $9$ for the level-$7$ covers of the nine types and $32$ for the
-tail coefficients. The reduction and the analytic part use only the three standard axioms. A build of the whole
-development from scratch takes about $80$ minutes on $24$ threads, almost all of it in the certificate chunks.
+conditions correspond to those of \cref{thm:criterion} with $t=\delta_p$.
 
 \emph{What is not formalized.} The C certificate of \cref{thm:main} (\cref{sec:certified}) and
-\cite[Theorem~6.1]{BBMST}, which it uses, are not formalized; the formal proof does not need them. \Cref{thm:odd} is
-formalized (\cref{sec:odd}), and so is \cref{thm:odd2}; \cref{thm:sf29,thm:sf6smooth} and the results of
-\cref{sec:rings} are not.
+\cite[Theorem~6.1]{BBMST}, which it uses, are not formalized; the formal proof does not need them.
 
 \begin{table}[ht]
 \centering
-\caption{Modules of the Lean formalization (\code{lean/MinModulus/}) and the corresponding results of this paper.}
+\caption{Modules of the Lean formalization (\code{MinModulus/}) and the corresponding results of this paper.}
 \label{tab:lean}
 \small
 \begin{tabular}{@{}lr>{\raggedright\arraybackslash}p{0.69\textwidth}@{}}
@@ -403,37 +372,26 @@ module & lines & contents\\
   \cref{prop:F4,lem:kernel}\\
 \code{Comparison} & $710$ & \cref{lem:greedy,lem:onecoord} (by duality), \cref{prop:rectangles,lem:vlaw}, and
   \cref{thm:comparison} for hinges\\
-\code{Smooth} & $2142$ & the tilted law of $s$, $U_p(s)$, the moments $\E[\tau(s)^\theta]$, hinge bounds, monotone
+\code{Smooth} & $2057$ & the tilted law of $s$, $U_p(s)$, the moments $\E[\tau(s)^\theta]$, hinge bounds, monotone
   coupling in the exponent caps\\
 \code{Tail} & $354$ & \cref{prop:tail}\\
-\code{Main} & $613$ & the certificate interface \code{Cert}, \code{not\_covers\_of\_cert} (\cref{thm:perprime} with
+\code{Main} & $594$ & the certificate interface \code{Cert}, \code{not\_covers\_of\_cert} (\cref{thm:perprime} with
   $t=\delta_p$, \cref{thm:criterion}), the final theorem\\
-\code{CheckerImpl} & $1269$ & the executable checker and \code{check\_eq\_true} (by \code{native\_decide})\\
-\code{CheckerMath} & $4094$ & the mathematics of the checker's quantities: laws of $\tau(s_A)$ and $\tau(s_B)$,
+\code{CheckerImpl} & $1201$ & the executable checker and \code{check\_eq\_true} (by \code{native\_decide})\\
+\code{CheckerMath} & $4011$ & the mathematics of the checker's quantities: laws of $\tau(s_A)$ and $\tau(s_B)$,
   the split of \cref{lem:AB}, the comparison bound, first and fractional moments\\
-\code{CheckerSound} & $6201$ & code-level soundness: loop and array invariants, enumeration, dynamic programs,
+\code{CheckerSound} & $6130$ & code-level soundness: loop and array invariants, enumeration, dynamic programs,
   blocks, and the assembly of the certificate (\code{CheckerSound.D.cert\_16000})\\
-\code{Squarefree} & $1649$ & \cref{thm:squarefree}, with its own checker and soundness proof\\
 \midrule
 \multicolumn{3}{@{}l}{\emph{formalization of \cref{thm:main}}}\\
-\code{Checker2Impl} & $1139$ & the executable checker of \cref{sec:certified-formal}\\
-\code{Checker2Math} & $2155$ & \cref{lem:SBH,lem:tausplit} in the form of the hinge loss, the lower-tail identity, the
+\code{Checker2Impl} & $1073$ & the executable checker of \cref{sec:certified-formal}\\
+\code{Checker2Math} & $2064$ & \cref{lem:SBH,lem:tausplit} in the form of the hinge loss, the lower-tail identity, the
   joint law of $(T,b)$, the law of the exponent sum, the enumeration and its pruning bound\\
-\code{Checker2Sound} & $6604$ & code-level soundness: dynamic programs, tables, the S/B/H and $\tau$-split costs,
+\code{Checker2Sound} & $6512$ & code-level soundness: dynamic programs, tables, the S/B/H and $\tau$-split costs,
   loops and blocks, the generic soundness theorem \code{E.run2\_sound}, and the final theorem
   \code{not\_covers\_14501}\\
-\code{Tail2} & $2022$ & \cref{prop:tailtwo}, the criterion with the sharpened tail, and the certificate
+\code{Tail2} & $1950$ & \cref{prop:tailtwo}, the criterion with the sharpened tail, and the certificate
   \code{check2T14501\_eq\_true} (by \code{native\_decide})\\
-\midrule
-\code{Odd} & $4381$ & \cref{thm:odd,thm:odd2}: the chain for restricted moduli, the per-case weights, a checker for
-  the $\tau$-split bounds with excluded and capped primes, its soundness, and nine \code{native\_decide}
-  certificates\\
-\code{SliceCert} & $3138$ & \cref{thm:sf23}: the class decomposition modulo $30$, the per-level bound for families
-  with repetitions, certificate records and the branch-and-bound tree with symmetries, the start-case check, and
-  \code{check23\_eq\_true} (by \code{native\_decide})\\
-\code{SquarefreeM7} & $14950$ & \cref{thm:sf7type}: the reduction to the nine types, the per-level bound with the
-  refinements at $7$, $11$ and $13$ and the tail, the tail coefficients up to $2^{31}$, the exact checker and its
-  soundness (and $194$ generated modules: the certificate data and $124$ \code{native\_decide} checks)\\
 \bottomrule
 \end{tabular}
 \end{table}

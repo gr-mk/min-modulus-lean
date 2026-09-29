@@ -80,12 +80,6 @@
 % (X = 1e9, tail constant 12473/100000).
 \newcommand{\totalLeanTwo}{0.999622630}
 \newcommand{\totalLeanThree}{0.99997629}
-% --- Section 8 ------------------------------------------------------------------------------------------
-\newcommand{\etaSqf}{0.997325494880}
-\newcommand{\etaSqfLean}{0.998573418}
-\newcommand{\etaOddA}{0.998377513919}
-\newcommand{\etaOddB}{0.758709339068}
-\newcommand{\etaOddC}{0.990608082164}
 %% =====================================================================================
 
 \usepackage[margin=1.12in]{geometry}
@@ -162,10 +156,7 @@ progressions under an explicit tilted product measure. This extends Rogers' theo
 each prime by an expectation over a random smooth number, which we evaluate exactly, up to explicitly bounded
 truncations, by a certified computation in directed rounding. The computation has been cross-checked by independent
 code and refereed by an AI agent. The whole proof, including a separate evaluation of the bounds, has also been
-formally verified in Lean~4 with Mathlib, modulo one \texttt{native\_decide} evaluation of a numerical checker written in Lean. The method also gives least modulus at most $6$
-for distinct squarefree moduli, also with a formally verified proof, new divisibility conditions for coverings with odd moduli, the nonexistence of
-distinct coverings of $\mathbb{F}_q[x]$ for $q\ge11$, and explicit minimum-norm bounds for distinct coverings of
-$\Z[i]$ and $\Z[\omega]$.
+formally verified in Lean~4 with Mathlib, modulo one \texttt{native\_decide} evaluation of a numerical checker written in Lean.
 \end{abstract}
 
 \maketitle
@@ -179,17 +170,14 @@ $\Z[i]$ and $\Z[\omega]$.
 \input{sections/evaluation.tex}
 \input{sections/computation.tex}
 \input{sections/limits.tex}
-\input{sections/further.tex}
 
 \subsection*{Acknowledgements}
 This work was carried out with substantial assistance from AI systems (Anthropic's Claude), including the design
 of the computation, the proofs, independent re-verification and the Lean formalization; all computations are
 reproducible from the accompanying code. The results have been checked by independent recomputation, by randomized,
 exhaustive and brute-force tests and by separate AI referee passes over the proofs and the computations.
-\Cref{thm:main,thm:lean,thm:squarefree,thm:sf23}, and each of the nine statements of \cref{thm:odd,thm:odd2}, have been
-formally verified in Lean~4 modulo one \texttt{native\_decide} evaluation each, and \cref{thm:sf7type} modulo $124$
-such evaluations; \cref{thm:sf29,thm:sf6smooth} and the results of \cref{sec:rings} have been certified,
-cross-checked and refereed by AI agents but not formalized. None of the results has yet been refereed by human experts. We thank the
+\Cref{thm:main,thm:lean} have been formally verified in Lean~4 modulo one \texttt{native\_decide} evaluation each.
+None of the results has yet been refereed by human experts. We thank the
 authors of \cite{BBMST}, whose distortion method and careful exposition this work builds on.
 % TODO(acknowledgements): add funding and personal acknowledgements.
 

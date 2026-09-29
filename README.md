@@ -18,13 +18,13 @@ for moduli ≥ 16,000, with a simpler evaluation and its own checker.
 
 ## The paper
 
-`paper/` holds the paper: `paper/main.pdf` (47 pages) and its LaTeX sources.
+`paper/` holds the paper: `paper/main.pdf` (38 pages) and its LaTeX sources.
 - **Build:** `cd paper && tectonic main.tex`, or `latexmk -pdf main.tex`.
 - **Figures:** `fig/` holds the figures and `gen/` the generated tables, so the paper builds as is.
 - **Figure script:** `make_figures.py` regenerates the figures, but it reads certificate data from the paper's
   accompanying files, which are not in this repository.
-- **References to other files:** the paper also refers to other accompanying files, such as the C certificates,
-  referee reports and further Lean formalizations. Only the Lean proof of the main theorem is included here.
+- **References to other files:** the paper also refers to other accompanying files, such as the C certificate
+  programs and the logs of the computations. Only the Lean proof is included here.
 
 ## Trust base
 
@@ -102,7 +102,5 @@ That is 95 files and about 28,000 lines. `MinModulus.lean` is the root, and `Min
 axioms.
 
 ## Provenance
-This repository contains the paper and the part of its Lean development that the main theorem depends on. The
-paper's accompanying files also formalize further results: squarefree moduli, odd moduli, and smooth cases. The work
-was carried out with substantial assistance from AI systems (Anthropic's Claude), as described in the paper's
+This repository contains the paper and its Lean formalization. The work was carried out with substantial assistance from AI systems (Anthropic's Claude), as described in the paper's
 acknowledgements.

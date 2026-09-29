@@ -172,23 +172,6 @@ theorem & statement & status\\
   \texttt{native\_decide})\\
 \ref{thm:lean} & least modulus $\le\MboundLean$ & certified, cross-checked; formally verified in Lean~4 (one
   \texttt{native\_decide}; an earlier, independent formalization with its own checker)\\
-\ref{thm:squarefree} & squarefree moduli: least modulus $\le7$ & certified, recomputed, formally verified in Lean~4
-  (one \texttt{native\_decide})\\
-\ref{thm:sf23} & squarefree, $23$-smooth moduli $\ge3$ never cover & certified, recomputed exactly by independent
-  code, refereed; formally verified in Lean~4 (one \texttt{native\_decide})\\
-\ref{thm:sf29} & squarefree, $29$-smooth moduli $\ge3$ never cover & certified, recomputed exactly by independent
-  code, refereed; not formalized\\
-\ref{thm:sf7type} & squarefree moduli: least modulus $\le6$ (moduli $\ge7$ never cover) & certified,
-  recomputed exactly by independent code, refereed; formally verified in Lean~4 ($124$ \texttt{native\_decide}
-  evaluations)\\
-\ref{thm:sf6smooth} & squarefree, $211$-smooth moduli $\ge6$ never cover & certified, recomputed exactly by
-  independent code, refereed; not formalized\\
-\ref{thm:odd} & odd moduli: divisibility conditions (A)--(C) & certified, refereed; formally verified in Lean~4 (one
-  \texttt{native\_decide} each)\\
-\ref{thm:odd2} & six further divisibility conditions & certified, refereed; formally verified in Lean~4 (one
-  \texttt{native\_decide} each)\\
-\ref{thm:rings} & $\mathbb{F}_q[x]$, genus-$0$ function fields, $\Z[i]$, $\Z[\omega]$ & certified, refereed with
-  independent checkers; not formalized\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -200,7 +183,7 @@ and relates it to Rogers' theorem and to the lemmas of BBMST. \Cref{sec:loss} de
 prime and reduces the theorems to a finite computation. \Cref{sec:evaluation} explains how the bound is evaluated,
 and \cref{sec:computation} describes the certified computations, their independent verification and the
 formalization. \Cref{sec:limits} discusses which steps of the method are sharp and where the remaining slack lies.
-\Cref{sec:further} describes applications to squarefree and odd moduli and to other rings. The appendices list the
+The appendices list the
 distortion schedules, the budgets by prime ranges, the rounding conventions of the checkers and instructions for
 reproducing the computations.
 

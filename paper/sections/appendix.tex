@@ -185,23 +185,13 @@ of \code{logs/xcheck\_final.md} (code in \code{tests/xcheck\_final/}); \code{tes
 small-instance checks of \cref{sec:tests}, and the tests of the comparison theorem are the Python scripts in
 \code{tests/review/}.
 
-\emph{The results of \cref{sec:further}.} The scripts \path{squarefree/src/reproduce.sh} (about $30$ seconds) and
-\path{odd-moduli/reproduce_all.sh} (about $10$ minutes), and the drivers listed in \path{applications/PACKAGE.md},
-rerun the certificates of \cref{sec:squarefree,sec:odd,sec:rings}.
-
 \emph{This paper.} In \code{paper/}, \code{make\_figures.py} regenerates \code{fig/} and \code{gen/} from the
 certified outputs, and \code{tectonic main.tex} builds the paper.
 
 \needspace{11\baselineskip}
-\emph{Lean.} In \code{lean/}:
+\emph{Lean.} In the root of the Lean development:
 \begin{alltt}\footnotesize
-lake exe cache get                                 # prebuilt Mathlib
-lake build MinModulus.Checker2Sound.Final14501     # Theorem \ref{thm:main} (native check: about 10 min)
-lake env lean MinModulus/Checker2Sound/Final14501Audit.lean   # axioms of the final theorems
-lake build                                         # Theorem \ref{thm:lean} (native check: about 50 s)
-lake build MinModulus.Squarefree.Main              # squarefree theorem
-lake build MinModulus.Odd.Final                    # Theorem \ref{thm:odd} (native checks: 80 s each)
-lake env lean MinModulus/CheckerSound/Audit.lean   # axioms of MinModulus.not_covers
-lake env lean MinModulus/Squarefree/Axioms.lean    # axioms of the squarefree theorem
-lake env lean MinModulus/Odd/FinalAudit.lean       # axioms of Theorem \ref{thm:odd}
+lake exe cache get              # prebuilt Mathlib
+lake build                      # Theorems \ref{thm:main} and \ref{thm:lean} (native checks: about 10 min and 50 s)
+lake build MinModulus.Audit     # axioms of both theorems
 \end{alltt}
